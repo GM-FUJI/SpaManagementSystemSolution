@@ -53,7 +53,7 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0)
+        Label1.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Label1.ForeColor = Color.Black
         Label1.Location = New Point(204, 287)
         Label1.Name = "Label1"
@@ -74,7 +74,7 @@ Partial Class Form1
         ' txtUsername
         ' 
         txtUsername.BorderStyle = BorderStyle.None
-        txtUsername.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0)
+        txtUsername.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         txtUsername.ForeColor = Color.Black
         txtUsername.Location = New Point(51, 21)
         txtUsername.Name = "txtUsername"
@@ -104,7 +104,7 @@ Partial Class Form1
         ' txtPassword
         ' 
         txtPassword.BorderStyle = BorderStyle.None
-        txtPassword.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0)
+        txtPassword.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         txtPassword.ForeColor = Color.Black
         txtPassword.Location = New Point(51, 21)
         txtPassword.Name = "txtPassword"
@@ -123,8 +123,8 @@ Partial Class Form1
         ' 
         ' btnLogin
         ' 
-        btnLogin.BackColor = Color.FromArgb(0, 120, 212)
-        btnLogin.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0)
+        btnLogin.BackColor = Color.FromArgb(CByte(0), CByte(120), CByte(212))
+        btnLogin.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         btnLogin.ForeColor = Color.White
         btnLogin.Location = New Point(88, 498)
         btnLogin.Name = "btnLogin"
@@ -135,8 +135,8 @@ Partial Class Form1
         ' 
         ' btnCancel
         ' 
-        btnCancel.BackColor = Color.FromArgb(0, 120, 212)
-        btnCancel.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0)
+        btnCancel.BackColor = Color.FromArgb(CByte(0), CByte(120), CByte(212))
+        btnCancel.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         btnCancel.ForeColor = Color.White
         btnCancel.Location = New Point(88, 549)
         btnCancel.Name = "btnCancel"
@@ -149,7 +149,7 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        BackColor = Color.FromArgb(240, 244, 247)
+        BackColor = Color.FromArgb(CByte(240), CByte(244), CByte(247))
         ClientSize = New Size(491, 656)
         Controls.Add(btnCancel)
         Controls.Add(btnLogin)

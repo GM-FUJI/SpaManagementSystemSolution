@@ -28,6 +28,7 @@ Partial Class Form2
         Button4 = New Button()
         Button5 = New Button()
         Panel1 = New Panel()
+        Button6 = New Button()
         SuspendLayout()
         ' 
         ' Button1
@@ -93,11 +94,23 @@ Partial Class Form2
         Panel1.Size = New Size(862, 585)
         Panel1.TabIndex = 5
         ' 
+        ' Button6
+        ' 
+        Button6.BackColor = SystemColors.ActiveCaption
+        Button6.FlatStyle = FlatStyle.Popup
+        Button6.Location = New Point(31, 371)
+        Button6.Name = "Button6"
+        Button6.Size = New Size(107, 36)
+        Button6.TabIndex = 6
+        Button6.Text = "Facilities"
+        Button6.UseVisualStyleBackColor = False
+        ' 
         ' Form2
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1047, 609)
+        Controls.Add(Button6)
         Controls.Add(Panel1)
         Controls.Add(Button5)
         Controls.Add(Button4)
@@ -115,4 +128,5 @@ Partial Class Form2
     Friend WithEvents Button4 As Button
     Friend WithEvents Button5 As Button
     Friend WithEvents Panel1 As Panel
+    Friend WithEvents Button6 As Button
 End Class

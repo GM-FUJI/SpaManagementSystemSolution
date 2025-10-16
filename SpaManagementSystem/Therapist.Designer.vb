@@ -24,13 +24,14 @@ Partial Class Therapist
     Private Sub InitializeComponent()
         Label1 = New Label()
         Label2 = New Label()
-        cmbTherapist = New ComboBox()
-        lblStatusTitle = New Label()
         lblStatus = New Label()
         btnTimeIn = New Button()
         btnTimeOut = New Button()
         Label4 = New Label()
         dgvTherapist = New DataGridView()
+        cmbGender = New ComboBox()
+        cmbTherapist = New ComboBox()
+        Label3 = New Label()
         CType(dgvTherapist, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -48,29 +49,11 @@ Partial Class Therapist
         ' 
         Label2.AutoSize = True
         Label2.Font = New Font("Arial Narrow", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        Label2.Location = New Point(37, 100)
+        Label2.Location = New Point(37, 73)
         Label2.Name = "Label2"
-        Label2.Size = New Size(111, 20)
+        Label2.Size = New Size(98, 20)
         Label2.TabIndex = 1
-        Label2.Text = "Select Therapist:"
-        ' 
-        ' cmbTherapist
-        ' 
-        cmbTherapist.FormattingEnabled = True
-        cmbTherapist.Location = New Point(154, 100)
-        cmbTherapist.Name = "cmbTherapist"
-        cmbTherapist.Size = New Size(97, 23)
-        cmbTherapist.TabIndex = 2
-        ' 
-        ' lblStatusTitle
-        ' 
-        lblStatusTitle.AutoSize = True
-        lblStatusTitle.Font = New Font("Arial Narrow", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        lblStatusTitle.Location = New Point(37, 143)
-        lblStatusTitle.Name = "lblStatusTitle"
-        lblStatusTitle.Size = New Size(100, 20)
-        lblStatusTitle.TabIndex = 3
-        lblStatusTitle.Text = "Current Status:"
+        Label2.Text = "Select Gender:"
         ' 
         ' lblStatus
         ' 
@@ -83,7 +66,7 @@ Partial Class Therapist
         ' 
         ' btnTimeIn
         ' 
-        btnTimeIn.Location = New Point(37, 184)
+        btnTimeIn.Location = New Point(46, 229)
         btnTimeIn.Name = "btnTimeIn"
         btnTimeIn.Size = New Size(75, 23)
         btnTimeIn.TabIndex = 5
@@ -92,7 +75,7 @@ Partial Class Therapist
         ' 
         ' btnTimeOut
         ' 
-        btnTimeOut.Location = New Point(154, 184)
+        btnTimeOut.Location = New Point(154, 231)
         btnTimeOut.Name = "btnTimeOut"
         btnTimeOut.Size = New Size(75, 23)
         btnTimeOut.TabIndex = 6
@@ -116,24 +99,51 @@ Partial Class Therapist
         dgvTherapist.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
         dgvTherapist.BackgroundColor = Color.White
         dgvTherapist.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        dgvTherapist.Location = New Point(78, 245)
+        dgvTherapist.Location = New Point(65, 283)
         dgvTherapist.Name = "dgvTherapist"
         dgvTherapist.ReadOnly = True
         dgvTherapist.Size = New Size(613, 261)
         dgvTherapist.TabIndex = 8
+        ' 
+        ' cmbGender
+        ' 
+        cmbGender.FormattingEnabled = True
+        cmbGender.Location = New Point(169, 74)
+        cmbGender.Name = "cmbGender"
+        cmbGender.Size = New Size(146, 23)
+        cmbGender.TabIndex = 14
+        ' 
+        ' cmbTherapist
+        ' 
+        cmbTherapist.FormattingEnabled = True
+        cmbTherapist.Location = New Point(169, 114)
+        cmbTherapist.Name = "cmbTherapist"
+        cmbTherapist.Size = New Size(121, 23)
+        cmbTherapist.TabIndex = 15
+        ' 
+        ' Label3
+        ' 
+        Label3.AutoSize = True
+        Label3.Font = New Font("Arial Narrow", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Label3.Location = New Point(35, 117)
+        Label3.Name = "Label3"
+        Label3.Size = New Size(111, 20)
+        Label3.TabIndex = 16
+        Label3.Text = "Select Therapist:"
         ' 
         ' Therapist
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1021, 580)
+        Controls.Add(Label3)
+        Controls.Add(cmbTherapist)
+        Controls.Add(cmbGender)
         Controls.Add(dgvTherapist)
         Controls.Add(Label4)
         Controls.Add(btnTimeOut)
         Controls.Add(btnTimeIn)
         Controls.Add(lblStatus)
-        Controls.Add(lblStatusTitle)
-        Controls.Add(cmbTherapist)
         Controls.Add(Label2)
         Controls.Add(Label1)
         Name = "Therapist"
@@ -145,7 +155,6 @@ Partial Class Therapist
 
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
-    Friend WithEvents ComboBox1 As ComboBox
     Friend WithEvents Label3 As Label
     Friend WithEvents btnTimeIn As Button
     Friend WithEvents btnTimeOut As Button
@@ -154,5 +163,6 @@ Partial Class Therapist
     Friend WithEvents cmbTherapist As ComboBox
     Friend WithEvents lblStatusTitle As Label
     Friend WithEvents lblStatus As Label
+    Friend WithEvents cmbGender As ComboBox
 
 End Class

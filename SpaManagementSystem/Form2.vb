@@ -26,4 +26,8 @@
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         childform(Booking)
     End Sub
+
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        childform(Facilities)
+    End Sub
 End Class

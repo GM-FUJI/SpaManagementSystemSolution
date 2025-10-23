@@ -30,4 +30,16 @@
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
         childform(Facilities)
     End Sub
+
+    Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
+        Dim result As DialogResult
+        result = MessageBox.Show("Are you sure you want to log out?", "Logout", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+
+        If result = DialogResult.Yes Then
+            Me.Hide()
+
+            Dim loginForm As New Form1()
+            loginForm.Show()
+        End If
+    End Sub
 End Class

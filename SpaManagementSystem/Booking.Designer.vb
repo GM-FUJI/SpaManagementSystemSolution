@@ -22,16 +22,16 @@ Partial Class Booking
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Title = New Label()
-        Label2 = New Label()
-        Label1 = New Label()
-        Label3 = New Label()
-        Label4 = New Label()
-        Label5 = New Label()
-        Label6 = New Label()
-        Label7 = New Label()
-        Label8 = New Label()
-        Time = New Label()
+        Title = New System.Windows.Forms.Label()
+        Label2 = New System.Windows.Forms.Label()
+        Label1 = New System.Windows.Forms.Label()
+        Label3 = New System.Windows.Forms.Label()
+        Label4 = New System.Windows.Forms.Label()
+        Label5 = New System.Windows.Forms.Label()
+        Label6 = New System.Windows.Forms.Label()
+        Label7 = New System.Windows.Forms.Label()
+        Label8 = New System.Windows.Forms.Label()
+        Time = New System.Windows.Forms.Label()
         txtLastName = New TextBox()
         txtBlock = New TextBox()
         txtStreet = New TextBox()
@@ -40,16 +40,16 @@ Partial Class Booking
         cmbTherapist = New ComboBox()
         cmbPackage = New ComboBox()
         txtPrice = New TextBox()
-        Label11 = New Label()
+        Label11 = New System.Windows.Forms.Label()
         dtpBookingDate = New DateTimePicker()
         btnSave = New Button()
         btnClear = New Button()
-        Label12 = New Label()
-        Label13 = New Label()
+        Label12 = New System.Windows.Forms.Label()
+        Label13 = New System.Windows.Forms.Label()
         txtFirstName = New TextBox()
         txtMiddleInitial = New TextBox()
         txtBookingTime = New TextBox()
-        Label9 = New Label()
+        Label9 = New System.Windows.Forms.Label()
         cmbGender = New ComboBox()
         SuspendLayout()
         ' 
@@ -333,16 +333,16 @@ Partial Class Booking
         PerformLayout()
     End Sub
 
-    Friend WithEvents Title As Label
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Label1 As Label
-    Friend WithEvents Label3 As Label
-    Friend WithEvents Label4 As Label
-    Friend WithEvents Label5 As Label
-    Friend WithEvents Label6 As Label
-    Friend WithEvents Label7 As Label
-    Friend WithEvents Label8 As Label
-    Friend WithEvents Time As Label
+    Friend WithEvents Title As System.Windows.Forms.Label
+    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents Label5 As System.Windows.Forms.Label
+    Friend WithEvents Label6 As System.Windows.Forms.Label
+    Friend WithEvents Label7 As System.Windows.Forms.Label
+    Friend WithEvents Label8 As System.Windows.Forms.Label
+    Friend WithEvents Time As System.Windows.Forms.Label
     Friend WithEvents txtLastName As TextBox
     Friend WithEvents txtBlock As TextBox
     Friend WithEvents txtStreet As TextBox
@@ -351,15 +351,15 @@ Partial Class Booking
     Friend WithEvents cmbTherapist As ComboBox
     Friend WithEvents cmbPackage As ComboBox
     Friend WithEvents txtPrice As TextBox
-    Friend WithEvents Label11 As Label
+    Friend WithEvents Label11 As System.Windows.Forms.Label
     Friend WithEvents dtpBookingDate As DateTimePicker
     Friend WithEvents btnSave As Button
     Friend WithEvents btnClear As Button
-    Friend WithEvents Label12 As Label
-    Friend WithEvents Label13 As Label
+    Friend WithEvents Label12 As System.Windows.Forms.Label
+    Friend WithEvents Label13 As System.Windows.Forms.Label
     Friend WithEvents txtFirstName As TextBox
     Friend WithEvents txtMiddleInitial As TextBox
     Friend WithEvents txtBookingTime As TextBox
-    Friend WithEvents Label9 As Label
+    Friend WithEvents Label9 As System.Windows.Forms.Label
     Friend WithEvents cmbGender As ComboBox
 End Class

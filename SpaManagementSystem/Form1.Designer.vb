@@ -24,7 +24,7 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         PictureBox2 = New PictureBox()
-        Label1 = New Label()
+        Label1 = New System.Windows.Forms.Label()
         Panel1 = New Panel()
         txtUsername = New TextBox()
         PictureBox1 = New PictureBox()
@@ -173,7 +173,7 @@ Partial Class Form1
     End Sub
 
     Friend WithEvents PictureBox2 As PictureBox
-    Friend WithEvents Label1 As Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents Panel1 As Panel
     Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents txtUsername As TextBox

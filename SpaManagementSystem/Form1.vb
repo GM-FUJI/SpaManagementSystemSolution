@@ -1,10 +1,12 @@
 ﻿Imports Microsoft.Data.SqlClient
 
 Public Class Form1
+
+    Private connectionString As String = "Data Source=DESKTOP-UKNIJ8J\SQLEXPRESS;Initial Catalog=SpaManagementSystem;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         txtUsername.Text = "Username"
         txtUsername.ForeColor = Color.DarkGray
-
         txtPassword.Text = "Password"
         txtPassword.ForeColor = Color.DarkGray
     End Sub
@@ -40,46 +42,55 @@ Public Class Form1
     End Sub
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
-        If (txtUsername.Text = "" Or txtUsername.Text = "Username") Then
+        If txtUsername.Text = "" Or txtUsername.Text = "Username" Then
             MsgBox("Enter the username")
             txtUsername.Focus()
             Exit Sub
         End If
 
-        If (txtPassword.Text = "" Or txtPassword.Text = "Password") Then
-            MsgBox("Enter the Password")
+        If txtPassword.Text = "" Or txtPassword.Text = "Password" Then
+            MsgBox("Enter the password")
             txtPassword.Focus()
             Exit Sub
         End If
 
         Try
+            Using con As New SqlConnection(connectionString)
+                con.Open()
 
-            Dim con As New SqlConnection("Data Source=DESKTOP-UKNIJ8J\SQLEXPRESS;Initial Catalog=SpaManagementSystem;Integrated Security=True;Encrypt=False;TrustServerCertificate=True")
+                Dim sql As String = "SELECT Password, Role FROM Users WHERE Username = @user"
+                Using cmd As New SqlCommand(sql, con)
+                    cmd.Parameters.AddWithValue("@user", txtUsername.Text.Trim())
 
-            con.Open()
+                    Using reader = cmd.ExecuteReader()
+                        If reader.Read() Then
+                            Dim dbPass As String = reader("Password").ToString()
+                            Dim role As String = reader("Role").ToString()
 
-            Dim cmd As New SqlCommand("SELECT COUNT(*) FROM Users WHERE Username=@user AND Password=@pass", con)
-            cmd.Parameters.AddWithValue("@user", txtUsername.Text)
-            cmd.Parameters.AddWithValue("@pass", txtPassword.Text)
-
-            Dim count As Integer = Convert.ToInt32(cmd.ExecuteScalar())
-
-            If count > 0 Then
-                MsgBox("Login Successful", MsgBoxStyle.Information)
-
-                Dim f2 As New Form2()
-                f2.Show()
-                Me.Hide()
-            Else
-                MsgBox("Invalid Username or Password", MsgBoxStyle.Critical)
-            End If
-
-            con.Close()
-
+                            If txtPassword.Text = dbPass Then
+                                If role.ToLower() = "admin" Then
+                                    Dim adminForm As New Form2()
+                                    adminForm.Show()
+                                    Me.Hide()
+                                ElseIf role.ToLower() = "therapist" Then
+                                    Dim therapistForm As New TherapistForm()
+                                    therapistForm.LoggedInUser = txtUsername.Text.Trim()
+                                    therapistForm.Show()
+                                    Me.Hide()
+                                Else
+                                    MsgBox("Unknown role.")
+                                End If
+                            Else
+                                MsgBox("Invalid username or password", MsgBoxStyle.Critical)
+                            End If
+                        Else
+                            MsgBox("Invalid username or password", MsgBoxStyle.Critical)
+                        End If
+                    End Using
+                End Using
+            End Using
         Catch ex As Exception
-            MsgBox("Error: " & ex.Message)
+            MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
         End Try
     End Sub
-
-
 End Class

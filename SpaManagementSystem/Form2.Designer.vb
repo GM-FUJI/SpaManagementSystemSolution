@@ -29,6 +29,7 @@ Partial Class Form2
         Button5 = New Button()
         Panel1 = New Panel()
         Button6 = New Button()
+        btnLogout = New Button()
         SuspendLayout()
         ' 
         ' Button1
@@ -105,11 +106,23 @@ Partial Class Form2
         Button6.Text = "Facilities"
         Button6.UseVisualStyleBackColor = False
         ' 
+        ' btnLogout
+        ' 
+        btnLogout.BackColor = SystemColors.ActiveCaption
+        btnLogout.FlatStyle = FlatStyle.Popup
+        btnLogout.Location = New Point(31, 539)
+        btnLogout.Name = "btnLogout"
+        btnLogout.Size = New Size(107, 36)
+        btnLogout.TabIndex = 7
+        btnLogout.Text = "Log Out"
+        btnLogout.UseVisualStyleBackColor = False
+        ' 
         ' Form2
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1047, 609)
+        Controls.Add(btnLogout)
         Controls.Add(Button6)
         Controls.Add(Panel1)
         Controls.Add(Button5)
@@ -129,4 +142,5 @@ Partial Class Form2
     Friend WithEvents Button5 As Button
     Friend WithEvents Panel1 As Panel
     Friend WithEvents Button6 As Button
+    Friend WithEvents btnLogout As Button
 End Class

@@ -22,26 +22,26 @@ Partial Class Facilities
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Label1 = New Label()
+        Label1 = New System.Windows.Forms.Label()
         GroupBoxTherapist = New GroupBox()
-        lblTname = New Label()
-        lblGender = New Label()
+        lblTname = New System.Windows.Forms.Label()
+        lblGender = New System.Windows.Forms.Label()
         cmbGender = New ComboBox()
         txtTname = New TextBox()
-        lblStatus = New Label()
+        lblStatus = New System.Windows.Forms.Label()
         cmbStatus = New ComboBox()
         btnAddTherapist = New Button()
-        Label2 = New Label()
+        Label2 = New System.Windows.Forms.Label()
         GroupBoxPackage = New GroupBox()
-        lblPName = New Label()
+        lblPName = New System.Windows.Forms.Label()
         txtPName = New TextBox()
-        lblPrice = New Label()
+        lblPrice = New System.Windows.Forms.Label()
         txtPrice = New TextBox()
         btnAddPackage = New Button()
-        lblSearchT = New Label()
+        lblSearchT = New System.Windows.Forms.Label()
         cmbSearchTherapist = New ComboBox()
         btnDeleteTherapist = New Button()
-        Label3 = New Label()
+        Label3 = New System.Windows.Forms.Label()
         cmbSearchPackage = New ComboBox()
         btnDeletePackage = New Button()
         GroupBoxTherapist.SuspendLayout()
@@ -275,26 +275,26 @@ Partial Class Facilities
         PerformLayout()
     End Sub
 
-    Friend WithEvents Label1 As Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents GroupBoxTherapist As GroupBox
-    Friend WithEvents lblStatus As Label
+    Friend WithEvents lblStatus As System.Windows.Forms.Label
     Friend WithEvents txtTname As TextBox
     Friend WithEvents cmbGender As ComboBox
-    Friend WithEvents lblGender As Label
-    Friend WithEvents lblTname As Label
+    Friend WithEvents lblGender As System.Windows.Forms.Label
+    Friend WithEvents lblTname As System.Windows.Forms.Label
     Friend WithEvents btnAddTherapist As Button
     Friend WithEvents cmbStatus As ComboBox
-    Friend WithEvents Label2 As Label
+    Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents GroupBoxPackage As GroupBox
-    Friend WithEvents lblPName As Label
+    Friend WithEvents lblPName As System.Windows.Forms.Label
     Friend WithEvents btnAddPackage As Button
     Friend WithEvents txtPrice As TextBox
-    Friend WithEvents lblPrice As Label
+    Friend WithEvents lblPrice As System.Windows.Forms.Label
     Friend WithEvents txtPName As TextBox
     Friend WithEvents btnDeleteTherapist As Button
     Friend WithEvents cmbSearchTherapist As ComboBox
-    Friend WithEvents lblSearchT As Label
+    Friend WithEvents lblSearchT As System.Windows.Forms.Label
     Friend WithEvents btnDeletePackage As Button
     Friend WithEvents cmbSearchPackage As ComboBox
-    Friend WithEvents Label3 As Label
+    Friend WithEvents Label3 As System.Windows.Forms.Label
 End Class

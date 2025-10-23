@@ -22,16 +22,13 @@ Partial Class Therapist
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Label1 = New Label()
-        Label2 = New Label()
-        lblStatus = New Label()
-        btnTimeIn = New Button()
-        btnTimeOut = New Button()
-        Label4 = New Label()
+        Label1 = New System.Windows.Forms.Label()
+        lblStatus = New System.Windows.Forms.Label()
+        Label4 = New System.Windows.Forms.Label()
         dgvTherapist = New DataGridView()
-        cmbGender = New ComboBox()
         cmbTherapist = New ComboBox()
-        Label3 = New Label()
+        Label3 = New System.Windows.Forms.Label()
+        btnSearch = New Button()
         CType(dgvTherapist, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -45,16 +42,6 @@ Partial Class Therapist
         Label1.TabIndex = 0
         Label1.Text = "Therapist Availability"
         ' 
-        ' Label2
-        ' 
-        Label2.AutoSize = True
-        Label2.Font = New Font("Arial Narrow", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        Label2.Location = New Point(37, 73)
-        Label2.Name = "Label2"
-        Label2.Size = New Size(98, 20)
-        Label2.TabIndex = 1
-        Label2.Text = "Select Gender:"
-        ' 
         ' lblStatus
         ' 
         lblStatus.AutoSize = True
@@ -63,24 +50,6 @@ Partial Class Therapist
         lblStatus.Name = "lblStatus"
         lblStatus.Size = New Size(0, 21)
         lblStatus.TabIndex = 4
-        ' 
-        ' btnTimeIn
-        ' 
-        btnTimeIn.Location = New Point(46, 229)
-        btnTimeIn.Name = "btnTimeIn"
-        btnTimeIn.Size = New Size(75, 23)
-        btnTimeIn.TabIndex = 5
-        btnTimeIn.Text = "Time In"
-        btnTimeIn.UseVisualStyleBackColor = True
-        ' 
-        ' btnTimeOut
-        ' 
-        btnTimeOut.Location = New Point(154, 231)
-        btnTimeOut.Name = "btnTimeOut"
-        btnTimeOut.Size = New Size(75, 23)
-        btnTimeOut.TabIndex = 6
-        btnTimeOut.Text = "Time Out"
-        btnTimeOut.UseVisualStyleBackColor = True
         ' 
         ' Label4
         ' 
@@ -105,14 +74,6 @@ Partial Class Therapist
         dgvTherapist.Size = New Size(613, 261)
         dgvTherapist.TabIndex = 8
         ' 
-        ' cmbGender
-        ' 
-        cmbGender.FormattingEnabled = True
-        cmbGender.Location = New Point(169, 74)
-        cmbGender.Name = "cmbGender"
-        cmbGender.Size = New Size(146, 23)
-        cmbGender.TabIndex = 14
-        ' 
         ' cmbTherapist
         ' 
         cmbTherapist.FormattingEnabled = True
@@ -131,20 +92,26 @@ Partial Class Therapist
         Label3.TabIndex = 16
         Label3.Text = "Select Therapist:"
         ' 
+        ' btnSearch
+        ' 
+        btnSearch.Location = New Point(169, 156)
+        btnSearch.Name = "btnSearch"
+        btnSearch.Size = New Size(75, 23)
+        btnSearch.TabIndex = 17
+        btnSearch.Text = "Search"
+        btnSearch.UseVisualStyleBackColor = True
+        ' 
         ' Therapist
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1021, 580)
+        Controls.Add(btnSearch)
         Controls.Add(Label3)
         Controls.Add(cmbTherapist)
-        Controls.Add(cmbGender)
         Controls.Add(dgvTherapist)
         Controls.Add(Label4)
-        Controls.Add(btnTimeOut)
-        Controls.Add(btnTimeIn)
         Controls.Add(lblStatus)
-        Controls.Add(Label2)
         Controls.Add(Label1)
         Name = "Therapist"
         Text = "Therapist"
@@ -153,16 +120,13 @@ Partial Class Therapist
         PerformLayout()
     End Sub
 
-    Friend WithEvents Label1 As Label
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Label3 As Label
-    Friend WithEvents btnTimeIn As Button
-    Friend WithEvents btnTimeOut As Button
-    Friend WithEvents Label4 As Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents dgvTherapist As DataGridView
     Friend WithEvents cmbTherapist As ComboBox
-    Friend WithEvents lblStatusTitle As Label
-    Friend WithEvents lblStatus As Label
-    Friend WithEvents cmbGender As ComboBox
+    Friend WithEvents lblStatusTitle As System.Windows.Forms.Label
+    Friend WithEvents lblStatus As System.Windows.Forms.Label
+    Friend WithEvents btnSearch As Button
 
 End Class

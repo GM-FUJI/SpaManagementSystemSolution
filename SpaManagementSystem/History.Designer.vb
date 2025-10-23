@@ -22,7 +22,7 @@ Partial Class History
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Label1 = New Label()
+        Label1 = New System.Windows.Forms.Label()
         txtSearch = New TextBox()
         btnSearch = New Button()
         dgvHistory = New DataGridView()
@@ -104,7 +104,7 @@ Partial Class History
         PerformLayout()
     End Sub
 
-    Friend WithEvents Label1 As Label
+    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents txtSearch As TextBox
     Friend WithEvents btnSearch As Button
     Friend WithEvents DataGridView1 As DataGridView

@@ -2,7 +2,7 @@
 
 Public Class Form1
 
-    Private connectionString As String = "Data Source=DESKTOP-UKNIJ8J\SQLEXPRESS;Initial Catalog=SpaManagementSystem;Integrated Security=True;Encrypt=False;TrustServerCertificate=True"
+    Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         txtUsername.Text = "Username"
@@ -58,7 +58,8 @@ Public Class Form1
             Using con As New SqlConnection(connectionString)
                 con.Open()
 
-                Dim sql As String = "SELECT Password, Role FROM Users WHERE Username = @user"
+
+                Dim sql As String = "SELECT Password, Role, TherapistID FROM Users WHERE Username = @user"
                 Using cmd As New SqlCommand(sql, con)
                     cmd.Parameters.AddWithValue("@user", txtUsername.Text.Trim())
 
@@ -72,9 +73,18 @@ Public Class Form1
                                     Dim adminForm As New Form2()
                                     adminForm.Show()
                                     Me.Hide()
+
                                 ElseIf role.ToLower() = "therapist" Then
                                     Dim therapistForm As New TherapistForm()
                                     therapistForm.LoggedInUser = txtUsername.Text.Trim()
+
+
+                                    If Not IsDBNull(reader("TherapistID")) Then
+                                        therapistForm.LoggedInTherapistID = CInt(reader("TherapistID"))
+                                    Else
+                                        therapistForm.LoggedInTherapistID = 0
+                                    End If
+
                                     therapistForm.Show()
                                     Me.Hide()
                                 Else
@@ -89,6 +99,7 @@ Public Class Form1
                     End Using
                 End Using
             End Using
+
         Catch ex As Exception
             MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
         End Try

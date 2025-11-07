@@ -1,19 +1,26 @@
 ﻿Imports Microsoft.Data.SqlClient
+Imports System.Windows.Forms
 
 Public Class Booking
+    Private adminForm As Form
+    Private connectionString As String =
+        "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
+    Private selectedTime As String = ""
 
-    Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
+    Public Sub New(Optional admin As Form = Nothing)
+        InitializeComponent()
+        Me.adminForm = admin
+    End Sub
 
     Private Sub Booking_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadGenders()
         LoadPackages()
+        GenerateTimeSlots()
     End Sub
 
-    ' -------------------- GENDER COMBO --------------------
     Private Sub LoadGenders()
         cmbGender.Items.Clear()
-        cmbGender.Items.Add("Male")
-        cmbGender.Items.Add("Female")
+        cmbGender.Items.AddRange(New String() {"Male", "Female"})
     End Sub
 
     Private Sub cmbGender_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbGender.SelectedIndexChanged
@@ -22,37 +29,32 @@ Public Class Booking
         End If
     End Sub
 
-    ' -------------------- THERAPISTS --------------------
     Private Sub LoadTherapistsByGender(gender As String)
         Using con As New SqlConnection(connectionString)
             con.Open()
-            Dim query As String = "SELECT TherapistID, Name, Status FROM Therapists WHERE Gender = @Gender"
+            Dim query = "SELECT TherapistID, Name FROM Therapists WHERE Gender = @Gender AND Status = 'Available'"
             Using cmd As New SqlCommand(query, con)
                 cmd.Parameters.AddWithValue("@Gender", gender)
+
                 Dim dt As New DataTable()
                 dt.Load(cmd.ExecuteReader())
 
-                ' Add Availability to display
-                dt.Columns.Add("Display", GetType(String))
-                For Each row As DataRow In dt.Rows
-                    row("Display") = $"{row("Name")} - {row("Status")}"
-                Next
-
                 cmbTherapist.DataSource = dt
-                cmbTherapist.DisplayMember = "Display"
+                cmbTherapist.DisplayMember = "Name"
                 cmbTherapist.ValueMember = "TherapistID"
             End Using
         End Using
     End Sub
 
-    ' -------------------- PACKAGES --------------------
     Private Sub LoadPackages()
         Using con As New SqlConnection(connectionString)
             con.Open()
-            Dim query As String = "SELECT PackageID, PackageName, Price FROM Packages"
+            Dim query = "SELECT PackageID, PackageName, Price FROM Packages"
             Using cmd As New SqlCommand(query, con)
+
                 Dim dt As New DataTable()
                 dt.Load(cmd.ExecuteReader())
+
                 cmbPackage.DataSource = dt
                 cmbPackage.DisplayMember = "PackageName"
                 cmbPackage.ValueMember = "PackageID"
@@ -67,50 +69,74 @@ Public Class Booking
         End If
     End Sub
 
-    ' -------------------- SAVE BOOKING --------------------
-    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        Dim bookingTime As String = txtBookingTime.Text.Trim()
-        If String.IsNullOrEmpty(bookingTime) Then
-            MessageBox.Show("Please enter the booking time (e.g. 10:00 AM).", "Missing Time", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
+    ' Generate 1-hour time slots from 8AM to 10PM
+    Private Sub GenerateTimeSlots()
+        flpTimeSlots.Controls.Clear()
+        Dim startTime As DateTime = DateTime.Today.AddHours(8)
+        Dim endTime As DateTime = DateTime.Today.AddHours(22)
 
-        If cmbGender.SelectedItem Is Nothing OrElse cmbTherapist.SelectedItem Is Nothing Then
-            MessageBox.Show("Please select a therapist gender and therapist.", "Missing Therapist", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
-        Using con As New SqlConnection(connectionString)
-            con.Open()
-
-            Dim query As String = "INSERT INTO Bookings 
-                (LastName, FirstName, MiddleInitial, Block, Street, City, Phone, TherapistID, PackageID, Price, BookingDate, BookingTime)
-                VALUES (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone, @TherapistID, @PackageID, @Price, @BookingDate, @BookingTime)"
-
-            Using cmd As New SqlCommand(query, con)
-                cmd.Parameters.AddWithValue("@LastName", txtLastName.Text)
-                cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text)
-                cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text)
-                cmd.Parameters.AddWithValue("@Block", txtBlock.Text)
-                cmd.Parameters.AddWithValue("@Street", txtStreet.Text)
-                cmd.Parameters.AddWithValue("@City", txtCity.Text)
-                cmd.Parameters.AddWithValue("@Phone", txtPhone.Text)
-                cmd.Parameters.AddWithValue("@TherapistID", cmbTherapist.SelectedValue)
-                cmd.Parameters.AddWithValue("@PackageID", cmbPackage.SelectedValue)
-                cmd.Parameters.AddWithValue("@Price", Decimal.Parse(txtPrice.Text))
-                cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value)
-                cmd.Parameters.AddWithValue("@BookingTime", bookingTime)
-                cmd.ExecuteNonQuery()
-            End Using
-        End Using
-
-        MessageBox.Show("Booking saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        ClearForm()
+        While startTime < endTime
+            Dim rdo As New RadioButton()
+            rdo.Text = $"{startTime:hh:mm tt} - {startTime.AddHours(1):hh:mm tt}"
+            rdo.AutoSize = True
+            AddHandler rdo.CheckedChanged, AddressOf TimeSlot_CheckedChanged
+            flpTimeSlots.Controls.Add(rdo)
+            startTime = startTime.AddHours(1)
+        End While
     End Sub
 
-    ' -------------------- CLEAR FORM --------------------
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
-        ClearForm()
+    Private Sub TimeSlot_CheckedChanged(sender As Object, e As EventArgs)
+        Dim rdo = CType(sender, RadioButton)
+        If rdo.Checked Then
+            selectedTime = rdo.Text
+        End If
+    End Sub
+
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        ' Basic validation
+        If String.IsNullOrEmpty(selectedTime) Then
+            MessageBox.Show("Please select a booking time.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+        If cmbTherapist.SelectedValue Is Nothing Or cmbPackage.SelectedValue Is Nothing Then
+            MessageBox.Show("Please select therapist and package.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Try
+            Using con As New SqlConnection(connectionString)
+                con.Open()
+
+                Using cmd As New SqlCommand("
+                    INSERT INTO Bookings
+                    (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
+                     TherapistID, PackageID, Price, Status, BookingDate, BookingTime)
+                    VALUES
+                    (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
+                     @TherapistID, @PackageID, @Price, 'Pending', @BookingDate, @BookingTime)", con)
+
+                    cmd.Parameters.AddWithValue("@LastName", txtLastName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text.Trim())
+                    cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text.Trim())
+                    cmd.Parameters.AddWithValue("@Block", txtBlock.Text.Trim())
+                    cmd.Parameters.AddWithValue("@Street", txtStreet.Text.Trim())
+                    cmd.Parameters.AddWithValue("@City", txtCity.Text.Trim())
+                    cmd.Parameters.AddWithValue("@Phone", txtPhone.Text.Trim())
+                    cmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
+                    cmd.Parameters.AddWithValue("@PackageID", CInt(cmbPackage.SelectedValue))
+                    cmd.Parameters.AddWithValue("@Price", Decimal.Parse(txtPrice.Text))
+                    cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
+                    cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
+
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+
+            MessageBox.Show("Booking saved successfully (Pending).", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ClearForm()
+        Catch ex As Exception
+            MessageBox.Show("Error saving booking: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 
     Private Sub ClearForm()
@@ -122,11 +148,15 @@ Public Class Booking
         txtCity.Clear()
         txtPhone.Clear()
         txtPrice.Clear()
-        txtBookingTime.Clear()
         cmbGender.SelectedIndex = -1
         cmbTherapist.DataSource = Nothing
-        If cmbPackage.Items.Count > 0 Then cmbPackage.SelectedIndex = 0
+        cmbPackage.SelectedIndex = -1
+        selectedTime = ""
         dtpBookingDate.Value = DateTime.Now
+        GenerateTimeSlots()
     End Sub
 
+    Private Sub Booking_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        If adminForm IsNot Nothing Then adminForm.Show()
+    End Sub
 End Class

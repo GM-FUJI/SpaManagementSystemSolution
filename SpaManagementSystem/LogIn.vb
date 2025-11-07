@@ -1,6 +1,6 @@
 ﻿Imports Microsoft.Data.SqlClient
 
-Public Class Form1
+Public Class LogIn
 
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
@@ -70,12 +70,12 @@ Public Class Form1
 
                             If txtPassword.Text = dbPass Then
                                 If role.ToLower() = "admin" Then
-                                    Dim adminForm As New Form2()
+                                    Dim adminForm As New AdminInterface()
                                     adminForm.Show()
                                     Me.Hide()
 
                                 ElseIf role.ToLower() = "therapist" Then
-                                    Dim therapistForm As New TherapistForm()
+                                    Dim therapistForm As New TherapistInterface()
                                     therapistForm.LoggedInUser = txtUsername.Text.Trim()
 
 

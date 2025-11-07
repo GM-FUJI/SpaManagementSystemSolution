@@ -22,44 +22,88 @@ Partial Class Package
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Label1 = New Label()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Package))
         dgvPackages = New DataGridView()
+        btnDeletePackage = New Button()
+        cmbSearchPackage = New ComboBox()
+        btnAddPackage = New Button()
+        txtPrice = New TextBox()
+        txtPName = New TextBox()
         CType(dgvPackages, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
-        ' 
-        ' Label1
-        ' 
-        Label1.AutoSize = True
-        Label1.Font = New Font("Showcard Gothic", 21.75F, FontStyle.Bold Or FontStyle.Italic, GraphicsUnit.Point, CByte(0))
-        Label1.Location = New Point(238, 22)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(287, 36)
-        Label1.TabIndex = 0
-        Label1.Text = "List of Packages"
         ' 
         ' dgvPackages
         ' 
         dgvPackages.BackgroundColor = Color.White
         dgvPackages.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        dgvPackages.Location = New Point(12, 85)
+        dgvPackages.Location = New Point(46, 358)
         dgvPackages.Name = "dgvPackages"
-        dgvPackages.Size = New Size(776, 343)
+        dgvPackages.Size = New Size(986, 420)
         dgvPackages.TabIndex = 1
+        ' 
+        ' btnDeletePackage
+        ' 
+        btnDeletePackage.Location = New Point(884, 242)
+        btnDeletePackage.Name = "btnDeletePackage"
+        btnDeletePackage.Size = New Size(130, 36)
+        btnDeletePackage.TabIndex = 10
+        btnDeletePackage.Text = "Delete Package"
+        btnDeletePackage.UseVisualStyleBackColor = True
+        ' 
+        ' cmbSearchPackage
+        ' 
+        cmbSearchPackage.FormattingEnabled = True
+        cmbSearchPackage.Location = New Point(846, 202)
+        cmbSearchPackage.Name = "cmbSearchPackage"
+        cmbSearchPackage.Size = New Size(168, 23)
+        cmbSearchPackage.TabIndex = 9
+        ' 
+        ' btnAddPackage
+        ' 
+        btnAddPackage.Location = New Point(178, 261)
+        btnAddPackage.Name = "btnAddPackage"
+        btnAddPackage.Size = New Size(131, 33)
+        btnAddPackage.TabIndex = 7
+        btnAddPackage.Text = "Add Package"
+        btnAddPackage.UseVisualStyleBackColor = True
+        ' 
+        ' txtPrice
+        ' 
+        txtPrice.Location = New Point(189, 218)
+        txtPrice.Name = "txtPrice"
+        txtPrice.Size = New Size(163, 23)
+        txtPrice.TabIndex = 6
+        ' 
+        ' txtPName
+        ' 
+        txtPName.Location = New Point(189, 173)
+        txtPName.Name = "txtPName"
+        txtPName.Size = New Size(227, 23)
+        txtPName.TabIndex = 5
         ' 
         ' Package
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(800, 450)
+        BackColor = Color.White
+        BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
+        ClientSize = New Size(1073, 818)
+        Controls.Add(btnDeletePackage)
+        Controls.Add(cmbSearchPackage)
         Controls.Add(dgvPackages)
-        Controls.Add(Label1)
+        Controls.Add(btnAddPackage)
+        Controls.Add(txtPName)
+        Controls.Add(txtPrice)
         Name = "Package"
         Text = "Package"
         CType(dgvPackages, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
-
-    Friend WithEvents Label1 As Label
     Friend WithEvents dgvPackages As DataGridView
+    Friend WithEvents btnDeletePackage As Button
+    Friend WithEvents cmbSearchPackage As ComboBox
+    Friend WithEvents btnAddPackage As Button
+    Friend WithEvents txtPrice As TextBox
+    Friend WithEvents txtPName As TextBox
 End Class

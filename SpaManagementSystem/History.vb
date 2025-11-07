@@ -1,141 +1,130 @@
 ﻿Imports Microsoft.Data.SqlClient
-Imports System.Data
+Imports System.Windows.Forms
 
 Public Class History
 
-    Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
+    ' ✅ Database connection string
+    Private connectionString As String =
+        "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
+    ' ✅ Timer (auto-refresh)
+    Private WithEvents Timer1 As New Timer()
 
+    ' ✅ Load Form
     Private Sub History_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        LoadHistory("")
+        LoadHistory()
+        FormatGrid()
+
+        Timer1.Interval = 5000 ' Auto-refresh every 5 seconds
+        Timer1.Start()
     End Sub
 
+    ' ✅ Auto-refresh every 5 seconds
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        LoadHistory(txtSearch.Text.Trim())
+    End Sub
 
-    Private Sub LoadHistory(searchTerm As String)
-        Using con As New SqlConnection(connectionString)
-            Dim query As String = "
+    ' ✅ Load Booking History (with Name instead of IDs)
+    Private Sub LoadHistory(Optional search As String = "")
+        Try
+            Using conn As New SqlConnection(connectionString)
+                conn.Open()
+
+                Dim query As String =
+                "
                 SELECT 
-                    BookingID,
-                    LastName,
-                    FirstName,
-                    MiddleInitial,
-                    Block,
-                    Street,
-                    City,
-                    Phone,
-                    TherapistID,
-                    PackageID,
-                    Price,
-                    BookingDate,
-                    BookingTime
-                FROM Bookings
+                    B.BookingID,
+                    B.FirstName,
+                    B.LastName,
+                    B.City,
+                    B.Phone,
+                    P.PackageName AS Package,
+                    T.Name AS Therapist,
+                    B.Price,
+                    B.BookingDate,
+                    B.BookingTime,
+                    B.Status,
+                    ISNULL(F.Tax, 0) AS Tax,
+                    ISNULL(F.TherapistFee, 0) AS TherapistFee,
+                    ISNULL(F.TotalAmount, 0) AS TotalAmount
+                FROM Bookings B
+                LEFT JOIN Packages P ON B.PackageID = P.PackageID
+                LEFT JOIN Therapists T ON B.TherapistID = T.TherapistID
+                LEFT JOIN FinancialRecords F ON B.BookingID = F.BookingID
                 WHERE 
-                    CAST(BookingID AS NVARCHAR) LIKE '%' + @Search + '%' OR
-                    LastName LIKE '%' + @Search + '%' OR
-                    FirstName LIKE '%' + @Search + '%' OR
-                    MiddleInitial LIKE '%' + @Search + '%' OR
-                    Block LIKE '%' + @Search + '%' OR
-                    Street LIKE '%' + @Search + '%' OR
-                    City LIKE '%' + @Search + '%' OR
-                    Phone LIKE '%' + @Search + '%' OR
-                    CAST(TherapistID AS NVARCHAR) LIKE '%' + @Search + '%' OR
-                    CAST(PackageID AS NVARCHAR) LIKE '%' + @Search + '%' OR
-                    CAST(Price AS NVARCHAR) LIKE '%' + @Search + '%' OR
-                    CONVERT(NVARCHAR, BookingDate, 23) LIKE '%' + @Search + '%' OR
-                    BookingTime LIKE '%' + @Search + '%'
-                ORDER BY BookingDate DESC"
+                    (B.FirstName LIKE @Search OR 
+                     B.LastName LIKE @Search OR 
+                     CAST(B.BookingID AS NVARCHAR) LIKE @Search)
+                ORDER BY B.BookingDate DESC
+                "
 
-            Dim cmd As New SqlCommand(query, con)
-            cmd.Parameters.AddWithValue("@Search", searchTerm)
+                Using cmd As New SqlCommand(query, conn)
+                    cmd.Parameters.AddWithValue("@Search", "%" & search & "%")
 
-            Dim adapter As New SqlDataAdapter(cmd)
-            Dim dt As New DataTable()
-            adapter.Fill(dt)
+                    Dim adapter As New SqlDataAdapter(cmd)
+                    Dim dt As New DataTable()
+                    adapter.Fill(dt)
+                    dgvHistory.DataSource = dt
+                End Using
+            End Using
 
-            dgvHistory.AutoGenerateColumns = True
-            dgvHistory.DataSource = dt
-
-
-            If dgvHistory.Columns.Contains("BookingID") Then dgvHistory.Columns("BookingID").HeaderText = "Booking #"
-            If dgvHistory.Columns.Contains("LastName") Then dgvHistory.Columns("LastName").HeaderText = "Last Name"
-            If dgvHistory.Columns.Contains("FirstName") Then dgvHistory.Columns("FirstName").HeaderText = "First Name"
-            If dgvHistory.Columns.Contains("MiddleInitial") Then dgvHistory.Columns("MiddleInitial").HeaderText = "M.I."
-            If dgvHistory.Columns.Contains("BookingDate") Then dgvHistory.Columns("BookingDate").HeaderText = "Booking Date"
-            If dgvHistory.Columns.Contains("BookingTime") Then dgvHistory.Columns("BookingTime").HeaderText = "Booking Time"
-        End Using
+        Catch ex As Exception
+            MessageBox.Show("Error loading history: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 
+    ' ✅ Format DataGridView
+    Private Sub FormatGrid()
+        With dgvHistory
+            .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            .SelectionMode = DataGridViewSelectionMode.FullRowSelect
+            .ReadOnly = True
+            .MultiSelect = False
+        End With
 
+        If dgvHistory.Columns.Contains("Price") Then dgvHistory.Columns("Price").DefaultCellStyle.Format = "₱#,0.00"
+        If dgvHistory.Columns.Contains("Tax") Then dgvHistory.Columns("Tax").DefaultCellStyle.Format = "₱#,0.00"
+        If dgvHistory.Columns.Contains("TherapistFee") Then dgvHistory.Columns("TherapistFee").DefaultCellStyle.Format = "₱#,0.00"
+        If dgvHistory.Columns.Contains("TotalAmount") Then dgvHistory.Columns("TotalAmount").DefaultCellStyle.Format = "₱#,0.00"
+    End Sub
+
+    ' ✅ Manual Search
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         LoadHistory(txtSearch.Text.Trim())
     End Sub
 
-
-    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
-        If dgvHistory.SelectedRows.Count = 0 AndAlso dgvHistory.CurrentRow Is Nothing Then
-            MessageBox.Show("Please select a record to update.", "Update Record", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Return
-        End If
-
-        Dim selectedRow As DataGridViewRow = If(dgvHistory.SelectedRows.Count > 0, dgvHistory.SelectedRows(0), dgvHistory.CurrentRow)
-        Dim bookingID As Integer = Convert.ToInt32(selectedRow.Cells("BookingID").Value)
-        Dim lastName As String = selectedRow.Cells("LastName").Value.ToString()
-        Dim firstName As String = selectedRow.Cells("FirstName").Value.ToString()
-        Dim middleInitial As String = selectedRow.Cells("MiddleInitial").Value.ToString()
-        Dim phone As String = selectedRow.Cells("Phone").Value.ToString()
-
-        Using con As New SqlConnection(connectionString)
-            con.Open()
-            Dim query As String = "
-                UPDATE Bookings 
-                SET LastName=@LastName, FirstName=@FirstName, MiddleInitial=@MiddleInitial, Phone=@Phone 
-                WHERE BookingID=@BookingID"
-
-            Dim cmd As New SqlCommand(query, con)
-            cmd.Parameters.AddWithValue("@LastName", lastName)
-            cmd.Parameters.AddWithValue("@FirstName", firstName)
-            cmd.Parameters.AddWithValue("@MiddleInitial", middleInitial)
-            cmd.Parameters.AddWithValue("@Phone", phone)
-            cmd.Parameters.AddWithValue("@BookingID", bookingID)
-            cmd.ExecuteNonQuery()
-        End Using
-
-        MessageBox.Show("Record updated successfully!", "Update", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        LoadHistory(txtSearch.Text.Trim())
-    End Sub
-
-
+    ' ✅ Delete Booking (Also removes FinancialRecords if exists)
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
-
-        Dim selectedRow As DataGridViewRow = Nothing
-
-        If dgvHistory.SelectedRows.Count > 0 Then
-            selectedRow = dgvHistory.SelectedRows(0)
-        ElseIf dgvHistory.CurrentRow IsNot Nothing Then
-            selectedRow = dgvHistory.CurrentRow
-        End If
-
-
-        If selectedRow Is Nothing Then
-            MessageBox.Show("Please select a record to delete.", "Delete Record", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        If dgvHistory.SelectedRows.Count = 0 Then
+            MessageBox.Show("Select a booking first.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
+        Dim bookingID As Integer = Convert.ToInt32(dgvHistory.SelectedRows(0).Cells("BookingID").Value)
 
-        Dim bookingID As Integer = Convert.ToInt32(selectedRow.Cells("BookingID").Value)
+        If MessageBox.Show($"Are you sure you want to delete Booking ID {bookingID}?",
+                           "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+            Try
+                Using conn As New SqlConnection(connectionString)
+                    conn.Open()
 
+                    ' Delete financial records first
+                    Dim deleteFinance As New SqlCommand("DELETE FROM FinancialRecords WHERE BookingID = @BookingID", conn)
+                    deleteFinance.Parameters.AddWithValue("@BookingID", bookingID)
+                    deleteFinance.ExecuteNonQuery()
 
-        If MessageBox.Show("Are you sure you want to delete this booking?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-            Using con As New SqlConnection(connectionString)
-                con.Open()
-                Dim query As String = "DELETE FROM Bookings WHERE BookingID=@BookingID"
-                Dim cmd As New SqlCommand(query, con)
-                cmd.Parameters.AddWithValue("@BookingID", bookingID)
-                cmd.ExecuteNonQuery()
-            End Using
+                    ' Then delete the booking
+                    Dim deleteBooking As New SqlCommand("DELETE FROM Bookings WHERE BookingID = @BookingID", conn)
+                    deleteBooking.Parameters.AddWithValue("@BookingID", bookingID)
+                    deleteBooking.ExecuteNonQuery()
+                End Using
 
-            MessageBox.Show("Record deleted successfully!", "Delete", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            LoadHistory(txtSearch.Text.Trim())
+                MessageBox.Show("Booking deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                LoadHistory()
+
+            Catch ex As Exception
+                MessageBox.Show("Delete failed: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
         End If
     End Sub
 

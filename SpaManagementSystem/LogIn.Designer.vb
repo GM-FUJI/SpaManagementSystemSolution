@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
-Partial Class Form1
+Partial Class LogIn
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,9 +22,9 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(LogIn))
         PictureBox2 = New PictureBox()
-        Label1 = New System.Windows.Forms.Label()
+        Label1 = New Label()
         Panel1 = New Panel()
         txtUsername = New TextBox()
         PictureBox1 = New PictureBox()
@@ -33,19 +33,21 @@ Partial Class Form1
         PictureBox3 = New PictureBox()
         btnLogin = New Button()
         btnCancel = New Button()
+        PictureBox4 = New PictureBox()
         CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         Panel1.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         Panel2.SuspendLayout()
         CType(PictureBox3, ComponentModel.ISupportInitialize).BeginInit()
+        CType(PictureBox4, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' PictureBox2
         ' 
         PictureBox2.Image = CType(resources.GetObject("PictureBox2.Image"), Image)
-        PictureBox2.Location = New Point(166, 104)
+        PictureBox2.Location = New Point(756, 59)
         PictureBox2.Name = "PictureBox2"
-        PictureBox2.Size = New Size(156, 156)
+        PictureBox2.Size = New Size(53, 58)
         PictureBox2.SizeMode = PictureBoxSizeMode.StretchImage
         PictureBox2.TabIndex = 1
         PictureBox2.TabStop = False
@@ -53,11 +55,11 @@ Partial Class Form1
         ' Label1
         ' 
         Label1.AutoSize = True
-        Label1.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Label1.Font = New Font("Stencil", 15.75F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Label1.ForeColor = Color.Black
-        Label1.Location = New Point(204, 287)
+        Label1.Location = New Point(740, 158)
         Label1.Name = "Label1"
-        Label1.Size = New Size(63, 21)
+        Label1.Size = New Size(93, 25)
         Label1.TabIndex = 2
         Label1.Text = "Sign in"
         ' 
@@ -66,9 +68,9 @@ Partial Class Form1
         Panel1.BackColor = Color.White
         Panel1.Controls.Add(txtUsername)
         Panel1.Controls.Add(PictureBox1)
-        Panel1.Location = New Point(88, 340)
+        Panel1.Location = New Point(659, 257)
         Panel1.Name = "Panel1"
-        Panel1.Size = New Size(323, 58)
+        Panel1.Size = New Size(285, 38)
         Panel1.TabIndex = 3
         ' 
         ' txtUsername
@@ -76,17 +78,17 @@ Partial Class Form1
         txtUsername.BorderStyle = BorderStyle.None
         txtUsername.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         txtUsername.ForeColor = Color.Black
-        txtUsername.Location = New Point(51, 21)
+        txtUsername.Location = New Point(42, 7)
         txtUsername.Name = "txtUsername"
-        txtUsername.Size = New Size(255, 18)
+        txtUsername.Size = New Size(222, 18)
         txtUsername.TabIndex = 4
         ' 
         ' PictureBox1
         ' 
         PictureBox1.Image = CType(resources.GetObject("PictureBox1.Image"), Image)
-        PictureBox1.Location = New Point(5, 9)
+        PictureBox1.Location = New Point(5, 7)
         PictureBox1.Name = "PictureBox1"
-        PictureBox1.Size = New Size(40, 40)
+        PictureBox1.Size = New Size(31, 28)
         PictureBox1.SizeMode = PictureBoxSizeMode.StretchImage
         PictureBox1.TabIndex = 4
         PictureBox1.TabStop = False
@@ -96,9 +98,9 @@ Partial Class Form1
         Panel2.BackColor = Color.White
         Panel2.Controls.Add(txtPassword)
         Panel2.Controls.Add(PictureBox3)
-        Panel2.Location = New Point(88, 404)
+        Panel2.Location = New Point(659, 334)
         Panel2.Name = "Panel2"
-        Panel2.Size = New Size(323, 58)
+        Panel2.Size = New Size(285, 38)
         Panel2.TabIndex = 4
         ' 
         ' txtPassword
@@ -106,51 +108,62 @@ Partial Class Form1
         txtPassword.BorderStyle = BorderStyle.None
         txtPassword.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         txtPassword.ForeColor = Color.Black
-        txtPassword.Location = New Point(51, 21)
+        txtPassword.Location = New Point(40, 17)
         txtPassword.Name = "txtPassword"
-        txtPassword.Size = New Size(255, 18)
+        txtPassword.Size = New Size(242, 18)
         txtPassword.TabIndex = 4
         ' 
         ' PictureBox3
         ' 
         PictureBox3.Image = CType(resources.GetObject("PictureBox3.Image"), Image)
-        PictureBox3.Location = New Point(5, 9)
+        PictureBox3.Location = New Point(3, 3)
         PictureBox3.Name = "PictureBox3"
-        PictureBox3.Size = New Size(40, 40)
+        PictureBox3.Size = New Size(33, 32)
         PictureBox3.SizeMode = PictureBoxSizeMode.StretchImage
         PictureBox3.TabIndex = 4
         PictureBox3.TabStop = False
         ' 
         ' btnLogin
         ' 
-        btnLogin.BackColor = Color.FromArgb(CByte(0), CByte(120), CByte(212))
+        btnLogin.BackColor = Color.FromArgb(CByte(133), CByte(45), CByte(175))
         btnLogin.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         btnLogin.ForeColor = Color.White
-        btnLogin.Location = New Point(88, 498)
+        btnLogin.Location = New Point(756, 409)
         btnLogin.Name = "btnLogin"
-        btnLogin.Size = New Size(323, 45)
+        btnLogin.Size = New Size(90, 34)
         btnLogin.TabIndex = 5
         btnLogin.Text = "Login"
         btnLogin.UseVisualStyleBackColor = False
         ' 
         ' btnCancel
         ' 
-        btnCancel.BackColor = Color.FromArgb(CByte(0), CByte(120), CByte(212))
+        btnCancel.BackColor = Color.FromArgb(CByte(133), CByte(45), CByte(175))
         btnCancel.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
         btnCancel.ForeColor = Color.White
-        btnCancel.Location = New Point(88, 549)
+        btnCancel.Location = New Point(862, 409)
         btnCancel.Name = "btnCancel"
-        btnCancel.Size = New Size(323, 45)
+        btnCancel.Size = New Size(82, 34)
         btnCancel.TabIndex = 6
         btnCancel.Text = "Cancel"
         btnCancel.UseVisualStyleBackColor = False
+        ' 
+        ' PictureBox4
+        ' 
+        PictureBox4.Image = CType(resources.GetObject("PictureBox4.Image"), Image)
+        PictureBox4.Location = New Point(12, 12)
+        PictureBox4.Name = "PictureBox4"
+        PictureBox4.Size = New Size(546, 537)
+        PictureBox4.SizeMode = PictureBoxSizeMode.StretchImage
+        PictureBox4.TabIndex = 7
+        PictureBox4.TabStop = False
         ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         BackColor = Color.FromArgb(CByte(240), CByte(244), CByte(247))
-        ClientSize = New Size(491, 656)
+        ClientSize = New Size(984, 561)
+        Controls.Add(PictureBox4)
         Controls.Add(btnCancel)
         Controls.Add(btnLogin)
         Controls.Add(Panel2)
@@ -168,6 +181,7 @@ Partial Class Form1
         Panel2.ResumeLayout(False)
         Panel2.PerformLayout()
         CType(PictureBox3, ComponentModel.ISupportInitialize).EndInit()
+        CType(PictureBox4, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -182,5 +196,6 @@ Partial Class Form1
     Friend WithEvents PictureBox3 As PictureBox
     Friend WithEvents btnLogin As Button
     Friend WithEvents btnCancel As Button
+    Friend WithEvents PictureBox4 As PictureBox
 
 End Class

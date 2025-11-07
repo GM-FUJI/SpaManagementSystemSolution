@@ -22,37 +22,26 @@ Partial Class History
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Label1 = New System.Windows.Forms.Label()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(History))
         txtSearch = New TextBox()
         btnSearch = New Button()
         dgvHistory = New DataGridView()
-        btnUpdate = New Button()
         btnDelete = New Button()
         CType(dgvHistory, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
-        ' Label1
-        ' 
-        Label1.AutoSize = True
-        Label1.Font = New Font("Viner Hand ITC", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        Label1.Location = New Point(326, 27)
-        Label1.Name = "Label1"
-        Label1.Size = New Size(131, 26)
-        Label1.TabIndex = 0
-        Label1.Text = "History Report"
-        ' 
         ' txtSearch
         ' 
-        txtSearch.Location = New Point(21, 90)
+        txtSearch.Location = New Point(147, 189)
         txtSearch.Name = "txtSearch"
-        txtSearch.Size = New Size(157, 23)
+        txtSearch.Size = New Size(308, 23)
         txtSearch.TabIndex = 2
         ' 
         ' btnSearch
         ' 
-        btnSearch.Location = New Point(218, 90)
+        btnSearch.Location = New Point(489, 189)
         btnSearch.Name = "btnSearch"
-        btnSearch.Size = New Size(75, 23)
+        btnSearch.Size = New Size(82, 27)
         btnSearch.TabIndex = 3
         btnSearch.Text = "Search"
         btnSearch.UseVisualStyleBackColor = True
@@ -61,25 +50,16 @@ Partial Class History
         ' 
         dgvHistory.BackgroundColor = Color.White
         dgvHistory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        dgvHistory.Location = New Point(21, 135)
+        dgvHistory.Location = New Point(50, 370)
         dgvHistory.Name = "dgvHistory"
         dgvHistory.ReadOnly = True
         dgvHistory.RowHeadersVisible = False
-        dgvHistory.Size = New Size(820, 291)
+        dgvHistory.Size = New Size(1103, 333)
         dgvHistory.TabIndex = 4
-        ' 
-        ' btnUpdate
-        ' 
-        btnUpdate.Location = New Point(69, 456)
-        btnUpdate.Name = "btnUpdate"
-        btnUpdate.Size = New Size(143, 35)
-        btnUpdate.TabIndex = 5
-        btnUpdate.Text = "Updated Selected"
-        btnUpdate.UseVisualStyleBackColor = True
         ' 
         ' btnDelete
         ' 
-        btnDelete.Location = New Point(256, 456)
+        btnDelete.Location = New Point(986, 181)
         btnDelete.Name = "btnDelete"
         btnDelete.Size = New Size(155, 35)
         btnDelete.TabIndex = 6
@@ -90,21 +70,19 @@ Partial Class History
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(896, 527)
+        BackColor = Color.White
+        BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
+        ClientSize = New Size(1200, 844)
         Controls.Add(btnDelete)
-        Controls.Add(btnUpdate)
         Controls.Add(dgvHistory)
         Controls.Add(btnSearch)
         Controls.Add(txtSearch)
-        Controls.Add(Label1)
         Name = "History"
         Text = "History"
         CType(dgvHistory, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
-
-    Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents txtSearch As TextBox
     Friend WithEvents btnSearch As Button
     Friend WithEvents DataGridView1 As DataGridView
@@ -119,6 +97,5 @@ Partial Class History
     Friend WithEvents Column9 As DataGridViewTextBoxColumn
     Friend WithEvents Column10 As DataGridViewTextBoxColumn
     Friend WithEvents dgvHistory As DataGridView
-    Friend WithEvents btnUpdate As Button
     Friend WithEvents btnDelete As Button
 End Class

@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class Form2
+Partial Class AdminInterface
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -22,26 +22,12 @@ Partial Class Form2
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Button1 = New Button()
         Button2 = New Button()
         Button3 = New Button()
         Button4 = New Button()
         Button5 = New Button()
-        Panel1 = New Panel()
-        Button6 = New Button()
         btnLogout = New Button()
         SuspendLayout()
-        ' 
-        ' Button1
-        ' 
-        Button1.BackColor = SystemColors.ActiveCaption
-        Button1.FlatStyle = FlatStyle.Popup
-        Button1.Location = New Point(31, 73)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(107, 34)
-        Button1.TabIndex = 0
-        Button1.Text = "Dashboard"
-        Button1.UseVisualStyleBackColor = False
         ' 
         ' Button2
         ' 
@@ -87,25 +73,6 @@ Partial Class Form2
         Button5.Text = "Booking"
         Button5.UseVisualStyleBackColor = False
         ' 
-        ' Panel1
-        ' 
-        Panel1.BorderStyle = BorderStyle.FixedSingle
-        Panel1.Location = New Point(173, 12)
-        Panel1.Name = "Panel1"
-        Panel1.Size = New Size(862, 585)
-        Panel1.TabIndex = 5
-        ' 
-        ' Button6
-        ' 
-        Button6.BackColor = SystemColors.ActiveCaption
-        Button6.FlatStyle = FlatStyle.Popup
-        Button6.Location = New Point(31, 371)
-        Button6.Name = "Button6"
-        Button6.Size = New Size(107, 36)
-        Button6.TabIndex = 6
-        Button6.Text = "Facilities"
-        Button6.UseVisualStyleBackColor = False
-        ' 
         ' btnLogout
         ' 
         btnLogout.BackColor = SystemColors.ActiveCaption
@@ -117,30 +84,24 @@ Partial Class Form2
         btnLogout.Text = "Log Out"
         btnLogout.UseVisualStyleBackColor = False
         ' 
-        ' Form2
+        ' AdminInterface
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1047, 609)
         Controls.Add(btnLogout)
-        Controls.Add(Button6)
-        Controls.Add(Panel1)
         Controls.Add(Button5)
         Controls.Add(Button4)
         Controls.Add(Button3)
         Controls.Add(Button2)
-        Controls.Add(Button1)
-        Name = "Form2"
+        Name = "AdminInterface"
+        StartPosition = FormStartPosition.CenterScreen
         Text = "Form2"
         ResumeLayout(False)
     End Sub
-
-    Friend WithEvents Button1 As Button
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
     Friend WithEvents Button4 As Button
     Friend WithEvents Button5 As Button
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents Button6 As Button
     Friend WithEvents btnLogout As Button
 End Class

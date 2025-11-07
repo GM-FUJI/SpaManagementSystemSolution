@@ -3,21 +3,41 @@ Imports System.Windows.Forms
 
 Public Class Therapist
 
+    Private adminForm As AdminInterface
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;TrustServerCertificate=True;"
     Private refreshTimer As Timer
 
+    ' ✅ Constructor that accepts AdminInterface as the parent
+    Public Sub New(admin As AdminInterface)
+        InitializeComponent()
+        adminForm = admin
+    End Sub
 
     Private Sub Therapist_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        LoadTherapistCombo()
+        ' ✅ Load ComboBox options
+        LoadComboBoxOptions()
+
+        ' ✅ Load therapist data
+        LoadTherapistNames()
         LoadTherapistGrid()
 
-
+        ' ✅ Automatically refresh therapist list every 5 seconds
         refreshTimer = New Timer()
         refreshTimer.Interval = 5000
         AddHandler refreshTimer.Tick, AddressOf RefreshTimer_Tick
         refreshTimer.Start()
     End Sub
 
+    ' -------------------- COMBOBOX OPTIONS --------------------
+    Private Sub LoadComboBoxOptions()
+        ' Gender options
+        cmbGender.Items.Clear()
+        cmbGender.Items.AddRange(New String() {"Male", "Female"})
+
+        ' Status options
+        cmbStatus.Items.Clear()
+        cmbStatus.Items.AddRange(New String() {"Available", "In Session", "Unavailable"})
+    End Sub
 
     Private Sub RefreshTimer_Tick(sender As Object, e As EventArgs)
         Dim selectedName As String = Nothing
@@ -27,9 +47,10 @@ Public Class Therapist
         LoadTherapistGrid(selectedName)
     End Sub
 
-
-    Private Sub LoadTherapistCombo()
+    ' -------------------- LOAD THERAPISTS --------------------
+    Private Sub LoadTherapistNames()
         cmbTherapist.Items.Clear()
+        cmbSearchTherapist.Items.Clear()
 
         Using con As New SqlConnection(connectionString)
             con.Open()
@@ -37,12 +58,13 @@ Public Class Therapist
             Using cmd As New SqlCommand(query, con)
                 Dim reader As SqlDataReader = cmd.ExecuteReader()
                 While reader.Read()
-                    cmbTherapist.Items.Add(reader("Name").ToString())
+                    Dim name = reader("Name").ToString()
+                    cmbTherapist.Items.Add(name)
+                    cmbSearchTherapist.Items.Add(name)
                 End While
             End Using
         End Using
     End Sub
-
 
     Private Sub LoadTherapistGrid(Optional therapistName As String = Nothing)
         Using con As New SqlConnection(connectionString)
@@ -65,25 +87,25 @@ Public Class Therapist
             dgvTherapist.DataSource = dt
         End Using
 
-
+        ' ✅ Color-code therapist status
         For Each row As DataGridViewRow In dgvTherapist.Rows
             If row.Cells("Status").Value IsNot Nothing Then
                 Dim statusText As String = row.Cells("Status").Value.ToString()
-                If statusText = "Available" Then
-                    row.Cells("Status").Style.ForeColor = Color.Green
-                ElseIf statusText = "In Session" Then
-                    row.Cells("Status").Style.ForeColor = Color.Orange
-                ElseIf statusText = "Unavailable" Then
-                    row.Cells("Status").Style.ForeColor = Color.Red
-                Else
-                    row.Cells("Status").Style.ForeColor = Color.Black
-                End If
-
+                Select Case statusText
+                    Case "Available"
+                        row.Cells("Status").Style.ForeColor = Color.Green
+                    Case "In Session"
+                        row.Cells("Status").Style.ForeColor = Color.Orange
+                    Case "Unavailable"
+                        row.Cells("Status").Style.ForeColor = Color.Red
+                    Case Else
+                        row.Cells("Status").Style.ForeColor = Color.Black
+                End Select
             End If
         Next
     End Sub
 
-
+    ' -------------------- SEARCH BUTTON --------------------
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         If cmbTherapist.SelectedItem Is Nothing Then
             MessageBox.Show("Please select a therapist to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -94,11 +116,104 @@ Public Class Therapist
         LoadTherapistGrid(selectedTherapist)
     End Sub
 
+    ' -------------------- ADD THERAPIST --------------------
+    Private Sub btnAddTherapist_Click(sender As Object, e As EventArgs) Handles btnAddTherapist.Click
+        If String.IsNullOrWhiteSpace(txtTname.Text) OrElse
+           String.IsNullOrWhiteSpace(cmbGender.Text) OrElse
+           String.IsNullOrWhiteSpace(cmbStatus.Text) Then
 
+            MessageBox.Show("Please fill in all therapist fields.", "Missing Data",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Try
+            Using con As New SqlConnection(connectionString)
+                Dim query As String = "INSERT INTO Therapists (Name, Gender, Status) VALUES (@Name, @Gender, @Status)"
+                Using cmd As New SqlCommand(query, con)
+                    cmd.Parameters.AddWithValue("@Name", txtTname.Text)
+                    cmd.Parameters.AddWithValue("@Gender", cmbGender.Text)
+                    cmd.Parameters.AddWithValue("@Status", cmbStatus.Text)
+                    con.Open()
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+
+            MessageBox.Show("Therapist added successfully!", "Success",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+            txtTname.Clear()
+            cmbGender.SelectedIndex = -1
+            cmbStatus.SelectedIndex = -1
+            LoadTherapistNames()
+            LoadTherapistGrid()
+
+        Catch ex As Exception
+            MessageBox.Show("Error adding therapist: " & ex.Message, "Database Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' -------------------- DELETE THERAPIST --------------------
+    Private Sub btnDeleteTherapist_Click(sender As Object, e As EventArgs) Handles btnDeleteTherapist.Click
+        If String.IsNullOrWhiteSpace(cmbSearchTherapist.Text) Then
+            MessageBox.Show("Please select a therapist to delete.", "Missing Selection",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Dim selectedName As String = cmbSearchTherapist.Text
+        Try
+            Using con As New SqlConnection(connectionString)
+                Dim checkQuery As String = "SELECT COUNT(*) FROM Therapists WHERE Name = @Name"
+                Using checkCmd As New SqlCommand(checkQuery, con)
+                    checkCmd.Parameters.AddWithValue("@Name", selectedName)
+                    con.Open()
+                    Dim count As Integer = Convert.ToInt32(checkCmd.ExecuteScalar())
+                    con.Close()
+
+                    If count = 0 Then
+                        MessageBox.Show("Therapist not found.", "Error",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Return
+                    End If
+                End Using
+
+                Dim confirm = MessageBox.Show($"Are you sure you want to delete therapist: {selectedName}?",
+                                              "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+                If confirm = DialogResult.No Then Return
+
+                Dim deleteQuery As String = "DELETE FROM Therapists WHERE Name = @Name"
+                Using deleteCmd As New SqlCommand(deleteQuery, con)
+                    deleteCmd.Parameters.AddWithValue("@Name", selectedName)
+                    con.Open()
+                    deleteCmd.ExecuteNonQuery()
+                End Using
+            End Using
+
+            MessageBox.Show("Therapist deleted successfully!", "Deleted",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+            LoadTherapistNames()
+            LoadTherapistGrid()
+            cmbSearchTherapist.SelectedIndex = -1
+
+        Catch ex As Exception
+            MessageBox.Show("Error deleting therapist: " & ex.Message, "Database Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' -------------------- FORM EVENTS --------------------
     Private Sub Therapist_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If refreshTimer IsNot Nothing Then
             refreshTimer.Stop()
             refreshTimer.Dispose()
+        End If
+    End Sub
+
+    Private Sub Therapist_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        If adminForm IsNot Nothing Then
+            adminForm.Show()
         End If
     End Sub
 

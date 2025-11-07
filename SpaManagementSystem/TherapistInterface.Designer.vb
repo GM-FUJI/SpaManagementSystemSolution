@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class TherapistForm
+Partial Class TherapistInterface
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -23,33 +23,25 @@ Partial Class TherapistForm
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         btnLogout = New Button()
-        btnAttendance = New Button()
         btnBookings = New Button()
         btnHistoryofCustomer = New Button()
-        Panel1 = New Panel()
+        btnTimeIn = New Button()
+        btnTimeOut = New Button()
+        btnDoneSession = New Button()
         SuspendLayout()
         ' 
         ' btnLogout
         ' 
-        btnLogout.Location = New Point(31, 448)
+        btnLogout.Location = New Point(31, 186)
         btnLogout.Name = "btnLogout"
         btnLogout.Size = New Size(92, 35)
         btnLogout.TabIndex = 3
         btnLogout.Text = "Log Out "
         btnLogout.UseVisualStyleBackColor = True
         ' 
-        ' btnAttendance
-        ' 
-        btnAttendance.Location = New Point(31, 118)
-        btnAttendance.Name = "btnAttendance"
-        btnAttendance.Size = New Size(92, 38)
-        btnAttendance.TabIndex = 4
-        btnAttendance.Text = "Attendance"
-        btnAttendance.UseVisualStyleBackColor = True
-        ' 
         ' btnBookings
         ' 
-        btnBookings.Location = New Point(31, 195)
+        btnBookings.Location = New Point(31, 64)
         btnBookings.Name = "btnBookings"
         btnBookings.Size = New Size(92, 39)
         btnBookings.TabIndex = 5
@@ -58,37 +50,60 @@ Partial Class TherapistForm
         ' 
         ' btnHistoryofCustomer
         ' 
-        btnHistoryofCustomer.Location = New Point(31, 286)
+        btnHistoryofCustomer.Location = New Point(31, 126)
         btnHistoryofCustomer.Name = "btnHistoryofCustomer"
         btnHistoryofCustomer.Size = New Size(92, 36)
         btnHistoryofCustomer.TabIndex = 6
         btnHistoryofCustomer.Text = "History"
         btnHistoryofCustomer.UseVisualStyleBackColor = True
         ' 
-        ' Panel1
+        ' btnTimeIn
         ' 
-        Panel1.Location = New Point(151, 35)
-        Panel1.Name = "Panel1"
-        Panel1.Size = New Size(850, 526)
-        Panel1.TabIndex = 7
+        btnTimeIn.Location = New Point(227, 63)
+        btnTimeIn.Name = "btnTimeIn"
+        btnTimeIn.Size = New Size(142, 40)
+        btnTimeIn.TabIndex = 7
+        btnTimeIn.Text = "Time in"
+        btnTimeIn.UseVisualStyleBackColor = True
         ' 
-        ' TherapistForm
+        ' btnTimeOut
+        ' 
+        btnTimeOut.Location = New Point(407, 62)
+        btnTimeOut.Name = "btnTimeOut"
+        btnTimeOut.Size = New Size(142, 40)
+        btnTimeOut.TabIndex = 8
+        btnTimeOut.Text = "Time Out"
+        btnTimeOut.UseVisualStyleBackColor = True
+        ' 
+        ' btnDoneSession
+        ' 
+        btnDoneSession.Location = New Point(795, 62)
+        btnDoneSession.Name = "btnDoneSession"
+        btnDoneSession.Size = New Size(144, 39)
+        btnDoneSession.TabIndex = 9
+        btnDoneSession.Text = "Done Session"
+        btnDoneSession.UseVisualStyleBackColor = True
+        ' 
+        ' TherapistInterface
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1032, 604)
-        Controls.Add(Panel1)
+        Controls.Add(btnDoneSession)
+        Controls.Add(btnTimeOut)
+        Controls.Add(btnTimeIn)
         Controls.Add(btnHistoryofCustomer)
         Controls.Add(btnBookings)
-        Controls.Add(btnAttendance)
         Controls.Add(btnLogout)
-        Name = "TherapistForm"
+        Name = "TherapistInterface"
+        StartPosition = FormStartPosition.CenterScreen
         Text = "TherapistForm"
         ResumeLayout(False)
     End Sub
     Friend WithEvents btnLogout As Button
-    Friend WithEvents btnAttendance As Button
     Friend WithEvents btnBookings As Button
     Friend WithEvents btnHistoryofCustomer As Button
-    Friend WithEvents Panel1 As Panel
+    Friend WithEvents btnTimeIn As Button
+    Friend WithEvents btnTimeOut As Button
+    Friend WithEvents btnDoneSession As Button
 End Class

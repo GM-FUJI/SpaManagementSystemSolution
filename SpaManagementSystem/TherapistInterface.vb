@@ -12,7 +12,7 @@ Public Class TherapistInterface
         LoadTherapistStatus()
     End Sub
 
-    ' ✅ Load Therapist Status and update UI buttons
+
     Private Sub LoadTherapistStatus()
         Try
             Using con As New SqlConnection(connectionString)
@@ -51,7 +51,7 @@ Public Class TherapistInterface
         End Try
     End Sub
 
-    ' ✅ Update therapist status in database
+
     Private Sub UpdateTherapistStatus(newStatus As String)
         Try
             Using con As New SqlConnection(connectionString)
@@ -81,7 +81,7 @@ Public Class TherapistInterface
         UpdateTherapistStatus("Unavailable")
     End Sub
 
-    ' ✅ When session is done → mark booking "Completed" and Therapist Available again
+
     Private Sub btnDoneSession_Click(sender As Object, e As EventArgs) Handles btnDoneSession.Click
         Try
             Using con As New SqlConnection(connectionString)
@@ -112,7 +112,7 @@ Public Class TherapistInterface
         End Try
     End Sub
 
-    ' ✅ Open Booking Form only if therapist is Available
+
     Private Sub btnBookings_Click(sender As Object, e As EventArgs) Handles btnBookings.Click
         If Not IsTherapistAvailable() Then
             MessageBox.Show("You must be 'Available' to accept bookings.", "Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -127,7 +127,7 @@ Public Class TherapistInterface
         LoadTherapistStatus()
     End Sub
 
-    ' ✅ Function to check if therapist is available
+
     Private Function IsTherapistAvailable() As Boolean
         Using con As New SqlConnection(connectionString)
             con.Open()

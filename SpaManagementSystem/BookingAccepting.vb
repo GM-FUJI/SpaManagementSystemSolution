@@ -12,7 +12,7 @@ Public Class BookingAccepting
         SetupTimer()
     End Sub
 
-    ' Auto-refresh every 5 seconds
+
     Private Sub SetupTimer()
         refreshTimer.Interval = 5000
         AddHandler refreshTimer.Tick, AddressOf RefreshData
@@ -20,14 +20,14 @@ Public Class BookingAccepting
     End Sub
 
     Private Sub BookingAccepting_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        refreshTimer.Stop() ' ✅ Prevents memory leak when form closes
+        refreshTimer.Stop()
     End Sub
 
     Private Sub RefreshData()
         LoadBookings()
     End Sub
 
-    ' Load pending bookings
+
     Private Sub LoadBookings()
         Try
             Using con As New SqlConnection(connectionString)
@@ -58,7 +58,7 @@ Public Class BookingAccepting
         End If
     End Sub
 
-    ' Accept booking and insert/update financial record
+
     Private Sub btnAccept_Click(sender As Object, e As EventArgs) Handles btnAccept.Click
         If dgvBookings.SelectedRows.Count = 0 Then
             MessageBox.Show("Select a booking first.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -99,7 +99,7 @@ Public Class BookingAccepting
                             Return
                         End If
 
-                        ' Extract time
+
                         Dim startTimeOnly As String = bookingTimeText.Split("-"c)(0).Trim()
                         Dim timeOfDay As TimeSpan
                         Dim parsedDateTime As DateTime
@@ -108,19 +108,19 @@ Public Class BookingAccepting
                             timeOfDay = parsedDateTime.TimeOfDay
                         End If
 
-                        ' ✅ Update booking to Accepted
+
                         Using cmdUpdate As New SqlCommand("UPDATE Bookings SET Status='Accepted' WHERE BookingID=@BookingID", con, tran)
                             cmdUpdate.Parameters.AddWithValue("@BookingID", bookingID)
                             cmdUpdate.ExecuteNonQuery()
                         End Using
 
-                        ' ✅ Change Therapist to In Session
+
                         Using cmdStatus As New SqlCommand("UPDATE Therapists SET Status='In Session' WHERE TherapistID=@TherapistID", con, tran)
                             cmdStatus.Parameters.AddWithValue("@TherapistID", LoggedInTherapistID)
                             cmdStatus.ExecuteNonQuery()
                         End Using
 
-                        ' ✅ Save or update financial record
+
                         Dim checkFin As New SqlCommand("SELECT COUNT(*) FROM FinancialRecords WHERE BookingID = @BookingID", con, tran)
                         checkFin.Parameters.AddWithValue("@BookingID", bookingID)
                         Dim finCount As Integer = Convert.ToInt32(checkFin.ExecuteScalar())

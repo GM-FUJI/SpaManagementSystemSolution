@@ -15,7 +15,7 @@
     End Sub
 
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        Dim hist As New History() ' ✅ No parameter needed now
+        Dim hist As New History()
         hist.StartPosition = FormStartPosition.CenterScreen
         Me.Hide()
         hist.Show()

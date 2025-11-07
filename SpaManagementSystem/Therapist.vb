@@ -7,21 +7,21 @@ Public Class Therapist
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;TrustServerCertificate=True;"
     Private refreshTimer As Timer
 
-    ' ✅ Constructor that accepts AdminInterface as the parent
+
     Public Sub New(admin As AdminInterface)
         InitializeComponent()
         adminForm = admin
     End Sub
 
     Private Sub Therapist_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' ✅ Load ComboBox options
+
         LoadComboBoxOptions()
 
-        ' ✅ Load therapist data
+
         LoadTherapistNames()
         LoadTherapistGrid()
 
-        ' ✅ Automatically refresh therapist list every 5 seconds
+
         refreshTimer = New Timer()
         refreshTimer.Interval = 5000
         AddHandler refreshTimer.Tick, AddressOf RefreshTimer_Tick
@@ -30,11 +30,11 @@ Public Class Therapist
 
     ' -------------------- COMBOBOX OPTIONS --------------------
     Private Sub LoadComboBoxOptions()
-        ' Gender options
+
         cmbGender.Items.Clear()
         cmbGender.Items.AddRange(New String() {"Male", "Female"})
 
-        ' Status options
+
         cmbStatus.Items.Clear()
         cmbStatus.Items.AddRange(New String() {"Available", "In Session", "Unavailable"})
     End Sub
@@ -47,7 +47,7 @@ Public Class Therapist
         LoadTherapistGrid(selectedName)
     End Sub
 
-    ' -------------------- LOAD THERAPISTS --------------------
+
     Private Sub LoadTherapistNames()
         cmbTherapist.Items.Clear()
         cmbSearchTherapist.Items.Clear()
@@ -87,7 +87,7 @@ Public Class Therapist
             dgvTherapist.DataSource = dt
         End Using
 
-        ' ✅ Color-code therapist status
+
         For Each row As DataGridViewRow In dgvTherapist.Rows
             If row.Cells("Status").Value IsNot Nothing Then
                 Dim statusText As String = row.Cells("Status").Value.ToString()
@@ -105,7 +105,7 @@ Public Class Therapist
         Next
     End Sub
 
-    ' -------------------- SEARCH BUTTON --------------------
+
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         If cmbTherapist.SelectedItem Is Nothing Then
             MessageBox.Show("Please select a therapist to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -116,7 +116,7 @@ Public Class Therapist
         LoadTherapistGrid(selectedTherapist)
     End Sub
 
-    ' -------------------- ADD THERAPIST --------------------
+
     Private Sub btnAddTherapist_Click(sender As Object, e As EventArgs) Handles btnAddTherapist.Click
         If String.IsNullOrWhiteSpace(txtTname.Text) OrElse
            String.IsNullOrWhiteSpace(cmbGender.Text) OrElse
@@ -154,7 +154,7 @@ Public Class Therapist
         End Try
     End Sub
 
-    ' -------------------- DELETE THERAPIST --------------------
+
     Private Sub btnDeleteTherapist_Click(sender As Object, e As EventArgs) Handles btnDeleteTherapist.Click
         If String.IsNullOrWhiteSpace(cmbSearchTherapist.Text) Then
             MessageBox.Show("Please select a therapist to delete.", "Missing Selection",
@@ -203,7 +203,7 @@ Public Class Therapist
         End Try
     End Sub
 
-    ' -------------------- FORM EVENTS --------------------
+
     Private Sub Therapist_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If refreshTimer IsNot Nothing Then
             refreshTimer.Stop()

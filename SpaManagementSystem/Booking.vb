@@ -69,7 +69,7 @@ Public Class Booking
         End If
     End Sub
 
-    ' Generate 1-hour time slots from 8AM to 10PM
+
     Private Sub GenerateTimeSlots()
         flpTimeSlots.Controls.Clear()
         Dim startTime As DateTime = DateTime.Today.AddHours(8)
@@ -93,7 +93,6 @@ Public Class Booking
     End Sub
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        ' Basic validation
         If String.IsNullOrEmpty(selectedTime) Then
             MessageBox.Show("Please select a booking time.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
@@ -107,14 +106,18 @@ Public Class Booking
             Using con As New SqlConnection(connectionString)
                 con.Open()
 
-                Using cmd As New SqlCommand("
-                    INSERT INTO Bookings
-                    (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
-                     TherapistID, PackageID, Price, Status, BookingDate, BookingTime)
-                    VALUES
-                    (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
-                     @TherapistID, @PackageID, @Price, 'Pending', @BookingDate, @BookingTime)", con)
 
+                Dim bookingQuery As String =
+                    "INSERT INTO Bookings
+                     (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
+                      TherapistID, PackageID, Price, Status, BookingDate, BookingTime)
+                     OUTPUT INSERTED.BookingID
+                     VALUES
+                     (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
+                      @TherapistID, @PackageID, @Price, 'Pending', @BookingDate, @BookingTime)"
+
+                Dim bookingID As Integer
+                Using cmd As New SqlCommand(bookingQuery, con)
                     cmd.Parameters.AddWithValue("@LastName", txtLastName.Text.Trim())
                     cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text.Trim())
                     cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text.Trim())
@@ -128,14 +131,25 @@ Public Class Booking
                     cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
                     cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
 
-                    cmd.ExecuteNonQuery()
+                    bookingID = CInt(cmd.ExecuteScalar())
+                End Using
+
+
+                Dim pointsQuery As String =
+                    "INSERT INTO PointsSystem (TherapistID, BookingID, PointsEarned)
+                     VALUES (@TherapistID, @BookingID, 50)"
+
+                Using cmdPoints As New SqlCommand(pointsQuery, con)
+                    cmdPoints.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
+                    cmdPoints.Parameters.AddWithValue("@BookingID", bookingID)
+                    cmdPoints.ExecuteNonQuery()
                 End Using
             End Using
 
-            MessageBox.Show("Booking saved successfully (Pending).", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show("Booking saved and therapist earned 50 points!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ClearForm()
         Catch ex As Exception
-            MessageBox.Show("Error saving booking: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 

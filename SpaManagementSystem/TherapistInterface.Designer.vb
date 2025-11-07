@@ -22,12 +22,14 @@ Partial Class TherapistInterface
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        components = New ComponentModel.Container()
         btnLogout = New Button()
         btnBookings = New Button()
         btnHistoryofCustomer = New Button()
         btnTimeIn = New Button()
         btnTimeOut = New Button()
         btnDoneSession = New Button()
+        Guna2AnimateWindow1 = New Guna.UI2.WinForms.Guna2AnimateWindow(components)
         SuspendLayout()
         ' 
         ' btnLogout
@@ -106,4 +108,5 @@ Partial Class TherapistInterface
     Friend WithEvents btnTimeIn As Button
     Friend WithEvents btnTimeOut As Button
     Friend WithEvents btnDoneSession As Button
+    Friend WithEvents Guna2AnimateWindow1 As Guna.UI2.WinForms.Guna2AnimateWindow
 End Class

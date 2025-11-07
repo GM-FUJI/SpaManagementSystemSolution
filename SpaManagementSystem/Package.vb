@@ -6,19 +6,19 @@ Public Class Package
     Private adminForm As AdminInterface
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
-    ' ✅ Constructor that accepts AdminInterface as the parent form
+
     Public Sub New(admin As AdminInterface)
         InitializeComponent()
         adminForm = admin
     End Sub
 
-    ' -------------------- FORM LOAD --------------------
+
     Private Sub Package_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadPackages()
         LoadPackageNames()
     End Sub
 
-    ' -------------------- LOAD PACKAGES INTO GRID --------------------
+
     Private Sub LoadPackages()
         Try
             Using conn As New SqlConnection(connectionString)
@@ -47,7 +47,7 @@ Public Class Package
         End Try
     End Sub
 
-    ' -------------------- LOAD PACKAGE NAMES INTO COMBOBOX --------------------
+
     Private Sub LoadPackageNames()
         Try
             Using conn As New SqlConnection(connectionString)
@@ -69,7 +69,7 @@ Public Class Package
         End Try
     End Sub
 
-    ' -------------------- ADD PACKAGE --------------------
+
     Private Sub btnAddPackage_Click(sender As Object, e As EventArgs) Handles btnAddPackage.Click
         If String.IsNullOrWhiteSpace(txtPName.Text) OrElse String.IsNullOrWhiteSpace(txtPrice.Text) Then
             MessageBox.Show("Please fill in all package fields.", "Missing Data",
@@ -102,7 +102,7 @@ Public Class Package
         End Try
     End Sub
 
-    ' -------------------- DELETE PACKAGE --------------------
+
     Private Sub btnDeletePackage_Click(sender As Object, e As EventArgs) Handles btnDeletePackage.Click
         If String.IsNullOrWhiteSpace(cmbSearchPackage.Text) Then
             MessageBox.Show("Please select a package to delete.", "Missing Selection",
@@ -152,7 +152,7 @@ Public Class Package
         End Try
     End Sub
 
-    ' -------------------- FORM CLOSED --------------------
+
     Private Sub Package_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         If adminForm IsNot Nothing Then
             adminForm.Show()

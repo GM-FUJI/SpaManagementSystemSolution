@@ -18,14 +18,14 @@ Public Class OwnRecords
         dgvOwnRecords.SelectionMode = DataGridViewSelectionMode.FullRowSelect
         dgvOwnRecords.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
 
-        ' ✅ Auto-refresh every 5 seconds
+
         refreshTimer.Interval = 5000
         refreshTimer.Start()
 
         LoadOwnRecords()
     End Sub
 
-    ' ✅ This will run automatically every 5 seconds
+
     Private Sub refreshTimer_Tick(sender As Object, e As EventArgs) Handles refreshTimer.Tick
         LoadOwnRecords()
     End Sub

@@ -3,28 +3,27 @@ Imports System.Windows.Forms
 
 Public Class History
 
-    ' ✅ Database connection string
     Private connectionString As String =
         "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
-    ' ✅ Timer (auto-refresh)
+
     Private WithEvents Timer1 As New Timer()
 
-    ' ✅ Load Form
+
     Private Sub History_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadHistory()
         FormatGrid()
 
-        Timer1.Interval = 5000 ' Auto-refresh every 5 seconds
+        Timer1.Interval = 5000
         Timer1.Start()
     End Sub
 
-    ' ✅ Auto-refresh every 5 seconds
+
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         LoadHistory(txtSearch.Text.Trim())
     End Sub
 
-    ' ✅ Load Booking History (with Name instead of IDs)
+
     Private Sub LoadHistory(Optional search As String = "")
         Try
             Using conn As New SqlConnection(connectionString)
@@ -73,7 +72,7 @@ Public Class History
         End Try
     End Sub
 
-    ' ✅ Format DataGridView
+
     Private Sub FormatGrid()
         With dgvHistory
             .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
@@ -88,12 +87,12 @@ Public Class History
         If dgvHistory.Columns.Contains("TotalAmount") Then dgvHistory.Columns("TotalAmount").DefaultCellStyle.Format = "₱#,0.00"
     End Sub
 
-    ' ✅ Manual Search
+
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         LoadHistory(txtSearch.Text.Trim())
     End Sub
 
-    ' ✅ Delete Booking (Also removes FinancialRecords if exists)
+
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If dgvHistory.SelectedRows.Count = 0 Then
             MessageBox.Show("Select a booking first.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -108,12 +107,12 @@ Public Class History
                 Using conn As New SqlConnection(connectionString)
                     conn.Open()
 
-                    ' Delete financial records first
+
                     Dim deleteFinance As New SqlCommand("DELETE FROM FinancialRecords WHERE BookingID = @BookingID", conn)
                     deleteFinance.Parameters.AddWithValue("@BookingID", bookingID)
                     deleteFinance.ExecuteNonQuery()
 
-                    ' Then delete the booking
+
                     Dim deleteBooking As New SqlCommand("DELETE FROM Bookings WHERE BookingID = @BookingID", conn)
                     deleteBooking.Parameters.AddWithValue("@BookingID", bookingID)
                     deleteBooking.ExecuteNonQuery()

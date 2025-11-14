@@ -12,9 +12,8 @@ Public Class BookingAccepting
         SetupTimer()
     End Sub
 
-
     Private Sub SetupTimer()
-        refreshTimer.Interval = 5000
+        refreshTimer.Interval = 5000 ' refresh every 5 seconds
         AddHandler refreshTimer.Tick, AddressOf RefreshData
         refreshTimer.Start()
     End Sub
@@ -27,13 +26,12 @@ Public Class BookingAccepting
         LoadBookings()
     End Sub
 
-
     Private Sub LoadBookings()
         Try
             Using con As New SqlConnection(connectionString)
                 con.Open()
                 Dim query As String =
-                    "SELECT BookingID, LastName, FirstName, Phone, Price, BookingDate, BookingTime, Status
+                    "SELECT BookingID, LastName, FirstName, Phone, BookingDate, BookingTime, Status
                      FROM Bookings
                      WHERE TherapistID = @TherapistID AND Status = 'Pending'
                      ORDER BY BookingDate DESC"
@@ -53,11 +51,7 @@ Public Class BookingAccepting
         dgvBookings.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
         dgvBookings.ReadOnly = True
         dgvBookings.SelectionMode = DataGridViewSelectionMode.FullRowSelect
-        If dgvBookings.Columns.Contains("Price") Then
-            dgvBookings.Columns("Price").DefaultCellStyle.Format = "₱#,0.00"
-        End If
     End Sub
-
 
     Private Sub btnAccept_Click(sender As Object, e As EventArgs) Handles btnAccept.Click
         If dgvBookings.SelectedRows.Count = 0 Then
@@ -66,61 +60,73 @@ Public Class BookingAccepting
         End If
 
         Dim bookingID As Integer = CInt(dgvBookings.SelectedRows(0).Cells("BookingID").Value)
-        Dim price As Decimal = CDec(dgvBookings.SelectedRows(0).Cells("Price").Value)
 
-        Dim tax As Decimal = Math.Round(price * 0.03D, 2)
-        Dim therapistFee As Decimal = Math.Round(price * 0.3D, 2)
-        Dim therapistEarnings As Decimal = therapistFee
-        Dim totalAmount As Decimal = Math.Round(price + tax, 2)
+        ' ✅ Get total price safely from BookingPackages instead of Price column
+        Dim totalPrice As Decimal = 0D
+        Dim bookingDate As Date = Date.MinValue
+        Dim bookingTimeText As String = ""
+        Dim currentStatus As String = ""
 
         Try
             Using con As New SqlConnection(connectionString)
                 con.Open()
+
+                ' Get booking info
+                Using cmdGet As New SqlCommand("SELECT BookingDate, BookingTime, Status FROM Bookings WHERE BookingID=@BookingID", con)
+                    cmdGet.Parameters.AddWithValue("@BookingID", bookingID)
+                    Using rdr = cmdGet.ExecuteReader()
+                        If rdr.Read() Then
+                            bookingDate = Convert.ToDateTime(rdr("BookingDate"))
+                            bookingTimeText = rdr("BookingTime").ToString()
+                            currentStatus = rdr("Status").ToString()
+                        End If
+                    End Using
+                End Using
+
+                If currentStatus <> "Pending" Then
+                    MessageBox.Show("This booking is already processed.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                ' ✅ Compute total package price
+                Using cmdSum As New SqlCommand("SELECT ISNULL(SUM(PackagePrice),0) FROM BookingPackages WHERE BookingID=@BookingID", con)
+                    cmdSum.Parameters.AddWithValue("@BookingID", bookingID)
+                    totalPrice = Convert.ToDecimal(cmdSum.ExecuteScalar())
+                End Using
+            End Using
+
+            ' --- calculate taxes and fees ---
+            Dim tax As Decimal = Math.Round(totalPrice * 0.03D, 2)
+            Dim therapistFee As Decimal = Math.Round(totalPrice * 0.3D, 2)
+            Dim therapistEarnings As Decimal = therapistFee
+            Dim totalAmount As Decimal = Math.Round(totalPrice + tax, 2)
+
+            ' --- start DB transaction ---
+            Using con As New SqlConnection(connectionString)
+                con.Open()
                 Using tran As SqlTransaction = con.BeginTransaction()
                     Try
-                        Dim bookingDate As Date = Date.MinValue
-                        Dim bookingTimeText As String = ""
-                        Dim currentStatus As String = ""
-
-                        Using cmdGet As New SqlCommand("SELECT BookingDate, BookingTime, Status FROM Bookings WHERE BookingID=@BookingID", con, tran)
-                            cmdGet.Parameters.AddWithValue("@BookingID", bookingID)
-                            Using rdr = cmdGet.ExecuteReader()
-                                If rdr.Read() Then
-                                    bookingDate = Convert.ToDateTime(rdr("BookingDate"))
-                                    bookingTimeText = rdr("BookingTime").ToString()
-                                    currentStatus = rdr("Status").ToString()
-                                End If
-                            End Using
-                        End Using
-
-                        If currentStatus <> "Pending" Then
-                            MessageBox.Show("This booking is already processed.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                            tran.Rollback()
-                            Return
-                        End If
-
-
-                        Dim startTimeOnly As String = bookingTimeText.Split("-"c)(0).Trim()
-                        Dim timeOfDay As TimeSpan
-                        Dim parsedDateTime As DateTime
-
-                        If Not TimeSpan.TryParse(startTimeOnly, timeOfDay) AndAlso DateTime.TryParse(startTimeOnly, parsedDateTime) Then
-                            timeOfDay = parsedDateTime.TimeOfDay
-                        End If
-
-
+                        ' update booking status
                         Using cmdUpdate As New SqlCommand("UPDATE Bookings SET Status='Accepted' WHERE BookingID=@BookingID", con, tran)
                             cmdUpdate.Parameters.AddWithValue("@BookingID", bookingID)
                             cmdUpdate.ExecuteNonQuery()
                         End Using
 
-
+                        ' update therapist status
                         Using cmdStatus As New SqlCommand("UPDATE Therapists SET Status='In Session' WHERE TherapistID=@TherapistID", con, tran)
                             cmdStatus.Parameters.AddWithValue("@TherapistID", LoggedInTherapistID)
                             cmdStatus.ExecuteNonQuery()
                         End Using
 
+                        ' get time (handle both "HH:mm - HH:mm" or single times)
+                        Dim startTimeOnly As String = bookingTimeText.Split("-"c)(0).Trim()
+                        Dim timeOfDay As TimeSpan
+                        Dim parsedDateTime As DateTime
+                        If Not TimeSpan.TryParse(startTimeOnly, timeOfDay) AndAlso DateTime.TryParse(startTimeOnly, parsedDateTime) Then
+                            timeOfDay = parsedDateTime.TimeOfDay
+                        End If
 
+                        ' check if financial record exists
                         Dim checkFin As New SqlCommand("SELECT COUNT(*) FROM FinancialRecords WHERE BookingID = @BookingID", con, tran)
                         checkFin.Parameters.AddWithValue("@BookingID", bookingID)
                         Dim finCount As Integer = Convert.ToInt32(checkFin.ExecuteScalar())
@@ -128,14 +134,14 @@ Public Class BookingAccepting
                         If finCount > 0 Then
                             Using cmdFinUpdate As New SqlCommand("
                                 UPDATE FinancialRecords SET 
-                                    TherapistID = @TherapistID,
-                                    Tax = @Tax,
-                                    TherapistFee = @TherapistFee,
-                                    TotalAmount = @TotalAmount,
-                                    TherapistEarnings = @TherapistEarnings,
-                                    Date = @Date,
-                                    Time = @Time
-                                WHERE BookingID = @BookingID", con, tran)
+                                    TherapistID=@TherapistID,
+                                    Tax=@Tax,
+                                    TherapistFee=@TherapistFee,
+                                    TotalAmount=@TotalAmount,
+                                    TherapistEarnings=@TherapistEarnings,
+                                    Date=@Date,
+                                    Time=@Time
+                                WHERE BookingID=@BookingID", con, tran)
                                 cmdFinUpdate.Parameters.AddWithValue("@TherapistID", LoggedInTherapistID)
                                 cmdFinUpdate.Parameters.AddWithValue("@Tax", tax)
                                 cmdFinUpdate.Parameters.AddWithValue("@TherapistFee", therapistFee)
@@ -165,15 +171,15 @@ Public Class BookingAccepting
                         End If
 
                         tran.Commit()
+                        MessageBox.Show("Booking accepted! Therapist is now In Session.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        LoadBookings()
+
                     Catch
                         tran.Rollback()
                         Throw
                     End Try
                 End Using
             End Using
-
-            MessageBox.Show("Booking accepted! Therapist is now In Session.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            LoadBookings()
 
         Catch ex As Exception
             MessageBox.Show("Error accepting booking: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)

@@ -6,29 +6,27 @@ Public Class History
     Private connectionString As String =
         "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
 
-
     Private WithEvents Timer1 As New Timer()
-
 
     Private Sub History_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadHistory()
         FormatGrid()
 
+        ' 🔁 Refresh every 5 seconds
         Timer1.Interval = 5000
         Timer1.Start()
     End Sub
 
-
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         LoadHistory(txtSearch.Text.Trim())
     End Sub
-
 
     Private Sub LoadHistory(Optional search As String = "")
         Try
             Using conn As New SqlConnection(connectionString)
                 conn.Open()
 
+                ' ✅ Updated query to include package names (comma-separated) and total price
                 Dim query As String =
                 "
                 SELECT 
@@ -37,9 +35,22 @@ Public Class History
                     B.LastName,
                     B.City,
                     B.Phone,
-                    P.PackageName AS Package,
+                    -- Combine all package names for this booking
+                    STUFF((
+                        SELECT ', ' + P.PackageName
+                        FROM BookingPackages BP
+                        INNER JOIN Packages P ON BP.PackageID = P.PackageID
+                        WHERE BP.BookingID = B.BookingID
+                        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS PackageNames,
+
+                    -- Compute total price from BookingPackages
+                    ISNULL((
+                        SELECT SUM(BP.PackagePrice)
+                        FROM BookingPackages BP
+                        WHERE BP.BookingID = B.BookingID
+                    ), 0) AS TotalPrice,
+
                     T.Name AS Therapist,
-                    B.Price,
                     B.BookingDate,
                     B.BookingTime,
                     B.Status,
@@ -47,7 +58,6 @@ Public Class History
                     ISNULL(F.TherapistFee, 0) AS TherapistFee,
                     ISNULL(F.TotalAmount, 0) AS TotalAmount
                 FROM Bookings B
-                LEFT JOIN Packages P ON B.PackageID = P.PackageID
                 LEFT JOIN Therapists T ON B.TherapistID = T.TherapistID
                 LEFT JOIN FinancialRecords F ON B.BookingID = F.BookingID
                 WHERE 
@@ -72,7 +82,6 @@ Public Class History
         End Try
     End Sub
 
-
     Private Sub FormatGrid()
         With dgvHistory
             .AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
@@ -81,17 +90,16 @@ Public Class History
             .MultiSelect = False
         End With
 
-        If dgvHistory.Columns.Contains("Price") Then dgvHistory.Columns("Price").DefaultCellStyle.Format = "₱#,0.00"
+        ' ✅ Format money columns
+        If dgvHistory.Columns.Contains("TotalPrice") Then dgvHistory.Columns("TotalPrice").DefaultCellStyle.Format = "₱#,0.00"
         If dgvHistory.Columns.Contains("Tax") Then dgvHistory.Columns("Tax").DefaultCellStyle.Format = "₱#,0.00"
         If dgvHistory.Columns.Contains("TherapistFee") Then dgvHistory.Columns("TherapistFee").DefaultCellStyle.Format = "₱#,0.00"
         If dgvHistory.Columns.Contains("TotalAmount") Then dgvHistory.Columns("TotalAmount").DefaultCellStyle.Format = "₱#,0.00"
     End Sub
 
-
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         LoadHistory(txtSearch.Text.Trim())
     End Sub
-
 
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If dgvHistory.SelectedRows.Count = 0 Then
@@ -107,15 +115,29 @@ Public Class History
                 Using conn As New SqlConnection(connectionString)
                     conn.Open()
 
+                    ' ✅ Delete from PointsSystem first
+                    Using cmdPoints As New SqlCommand("DELETE FROM PointsSystem WHERE BookingID = @BookingID", conn)
+                        cmdPoints.Parameters.AddWithValue("@BookingID", bookingID)
+                        cmdPoints.ExecuteNonQuery()
+                    End Using
 
-                    Dim deleteFinance As New SqlCommand("DELETE FROM FinancialRecords WHERE BookingID = @BookingID", conn)
-                    deleteFinance.Parameters.AddWithValue("@BookingID", bookingID)
-                    deleteFinance.ExecuteNonQuery()
+                    ' ✅ Delete from BookingPackages next
+                    Using cmdPackages As New SqlCommand("DELETE FROM BookingPackages WHERE BookingID = @BookingID", conn)
+                        cmdPackages.Parameters.AddWithValue("@BookingID", bookingID)
+                        cmdPackages.ExecuteNonQuery()
+                    End Using
 
+                    ' ✅ Delete from FinancialRecords
+                    Using cmdFinance As New SqlCommand("DELETE FROM FinancialRecords WHERE BookingID = @BookingID", conn)
+                        cmdFinance.Parameters.AddWithValue("@BookingID", bookingID)
+                        cmdFinance.ExecuteNonQuery()
+                    End Using
 
-                    Dim deleteBooking As New SqlCommand("DELETE FROM Bookings WHERE BookingID = @BookingID", conn)
-                    deleteBooking.Parameters.AddWithValue("@BookingID", bookingID)
-                    deleteBooking.ExecuteNonQuery()
+                    ' ✅ Finally, delete from Bookings
+                    Using cmdBooking As New SqlCommand("DELETE FROM Bookings WHERE BookingID = @BookingID", conn)
+                        cmdBooking.Parameters.AddWithValue("@BookingID", bookingID)
+                        cmdBooking.ExecuteNonQuery()
+                    End Using
                 End Using
 
                 MessageBox.Show("Booking deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -128,3 +150,5 @@ Public Class History
     End Sub
 
 End Class
+
+

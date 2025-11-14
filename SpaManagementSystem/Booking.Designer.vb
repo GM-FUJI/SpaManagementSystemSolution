@@ -39,8 +39,6 @@ Partial Class Booking
         txtCity = New TextBox()
         txtPhone = New TextBox()
         cmbTherapist = New ComboBox()
-        cmbPackage = New ComboBox()
-        txtPrice = New TextBox()
         Label11 = New Label()
         dtpBookingDate = New DateTimePicker()
         btnSave = New Button()
@@ -61,6 +59,12 @@ Partial Class Booking
         Label18 = New Label()
         Label17 = New Label()
         PictureBox1 = New PictureBox()
+        clbPackages = New CheckedListBox()
+        lblTotalPrice = New Label()
+        lblDiscountTitle = New Label()
+        lblDiscountPercent = New Label()
+        cmbDiscount = New ComboBox()
+        lblDiscountPercent1 = New Label()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -122,7 +126,7 @@ Partial Class Booking
         ' Label6
         ' 
         Label6.AutoSize = True
-        Label6.Location = New Point(472, 394)
+        Label6.Location = New Point(457, 334)
         Label6.Name = "Label6"
         Label6.Size = New Size(92, 15)
         Label6.TabIndex = 6
@@ -131,7 +135,7 @@ Partial Class Booking
         ' Label7
         ' 
         Label7.AutoSize = True
-        Label7.Location = New Point(472, 464)
+        Label7.Location = New Point(472, 520)
         Label7.Name = "Label7"
         Label7.Size = New Size(88, 15)
         Label7.TabIndex = 7
@@ -140,7 +144,7 @@ Partial Class Booking
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Location = New Point(718, 496)
+        Label8.Location = New Point(741, 815)
         Label8.Name = "Label8"
         Label8.Size = New Size(33, 15)
         Label8.TabIndex = 8
@@ -157,7 +161,7 @@ Partial Class Booking
         ' 
         ' txtLastName
         ' 
-        txtLastName.Location = New Point(20, 344)
+        txtLastName.Location = New Point(20, 326)
         txtLastName.Name = "txtLastName"
         txtLastName.Size = New Size(113, 23)
         txtLastName.TabIndex = 10
@@ -193,31 +197,15 @@ Partial Class Booking
         ' cmbTherapist
         ' 
         cmbTherapist.FormattingEnabled = True
-        cmbTherapist.Location = New Point(570, 362)
+        cmbTherapist.Location = New Point(555, 331)
         cmbTherapist.Name = "cmbTherapist"
         cmbTherapist.Size = New Size(121, 23)
         cmbTherapist.TabIndex = 15
         ' 
-        ' cmbPackage
-        ' 
-        cmbPackage.FormattingEnabled = True
-        cmbPackage.Location = New Point(582, 461)
-        cmbPackage.Name = "cmbPackage"
-        cmbPackage.Size = New Size(121, 23)
-        cmbPackage.TabIndex = 16
-        ' 
-        ' txtPrice
-        ' 
-        txtPrice.Location = New Point(718, 461)
-        txtPrice.Name = "txtPrice"
-        txtPrice.ReadOnly = True
-        txtPrice.Size = New Size(100, 23)
-        txtPrice.TabIndex = 17
-        ' 
         ' Label11
         ' 
         Label11.AutoSize = True
-        Label11.Location = New Point(472, 579)
+        Label11.Location = New Point(476, 741)
         Label11.Name = "Label11"
         Label11.Size = New Size(78, 15)
         Label11.TabIndex = 20
@@ -225,7 +213,7 @@ Partial Class Booking
         ' 
         ' dtpBookingDate
         ' 
-        dtpBookingDate.Location = New Point(472, 606)
+        dtpBookingDate.Location = New Point(476, 771)
         dtpBookingDate.Name = "dtpBookingDate"
         dtpBookingDate.Size = New Size(200, 23)
         dtpBookingDate.TabIndex = 21
@@ -268,14 +256,14 @@ Partial Class Booking
         ' 
         ' txtFirstName
         ' 
-        txtFirstName.Location = New Point(152, 344)
+        txtFirstName.Location = New Point(152, 326)
         txtFirstName.Name = "txtFirstName"
         txtFirstName.Size = New Size(116, 23)
         txtFirstName.TabIndex = 26
         ' 
         ' txtMiddleInitial
         ' 
-        txtMiddleInitial.Location = New Point(284, 344)
+        txtMiddleInitial.Location = New Point(284, 326)
         txtMiddleInitial.Name = "txtMiddleInitial"
         txtMiddleInitial.Size = New Size(116, 23)
         txtMiddleInitial.TabIndex = 27
@@ -283,7 +271,7 @@ Partial Class Booking
         ' Label9
         ' 
         Label9.AutoSize = True
-        Label9.Location = New Point(464, 333)
+        Label9.Location = New Point(464, 301)
         Label9.Name = "Label9"
         Label9.Size = New Size(82, 15)
         Label9.TabIndex = 29
@@ -292,7 +280,7 @@ Partial Class Booking
         ' cmbGender
         ' 
         cmbGender.FormattingEnabled = True
-        cmbGender.Location = New Point(570, 333)
+        cmbGender.Location = New Point(555, 298)
         cmbGender.Name = "cmbGender"
         cmbGender.Size = New Size(121, 23)
         cmbGender.TabIndex = 30
@@ -311,7 +299,7 @@ Partial Class Booking
         ' 
         Label14.AutoSize = True
         Label14.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label14.Location = New Point(20, 284)
+        Label14.Location = New Point(20, 268)
         Label14.Name = "Label14"
         Label14.Size = New Size(155, 21)
         Label14.TabIndex = 32
@@ -321,7 +309,7 @@ Partial Class Booking
         ' 
         Label15.AutoSize = True
         Label15.Font = New Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label15.Location = New Point(20, 314)
+        Label15.Location = New Point(20, 298)
         Label15.Name = "Label15"
         Label15.Size = New Size(43, 17)
         Label15.TabIndex = 33
@@ -369,7 +357,7 @@ Partial Class Booking
         ' 
         Label18.AutoSize = True
         Label18.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label18.Location = New Point(464, 296)
+        Label18.Location = New Point(464, 268)
         Label18.Name = "Label18"
         Label18.Size = New Size(74, 21)
         Label18.TabIndex = 41
@@ -379,7 +367,7 @@ Partial Class Booking
         ' 
         Label17.AutoSize = True
         Label17.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
-        Label17.Location = New Point(472, 423)
+        Label17.Location = New Point(476, 481)
         Label17.Name = "Label17"
         Label17.Size = New Size(66, 21)
         Label17.TabIndex = 42
@@ -395,11 +383,70 @@ Partial Class Booking
         PictureBox1.TabIndex = 43
         PictureBox1.TabStop = False
         ' 
+        ' clbPackages
+        ' 
+        clbPackages.FormattingEnabled = True
+        clbPackages.Location = New Point(476, 550)
+        clbPackages.Name = "clbPackages"
+        clbPackages.Size = New Size(358, 184)
+        clbPackages.TabIndex = 44
+        ' 
+        ' lblTotalPrice
+        ' 
+        lblTotalPrice.AutoSize = True
+        lblTotalPrice.Font = New Font("Segoe UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        lblTotalPrice.Location = New Point(780, 810)
+        lblTotalPrice.Name = "lblTotalPrice"
+        lblTotalPrice.Size = New Size(50, 20)
+        lblTotalPrice.TabIndex = 45
+        lblTotalPrice.Text = "₱0.00"
+        ' 
+        ' lblDiscountTitle
+        ' 
+        lblDiscountTitle.AutoSize = True
+        lblDiscountTitle.Font = New Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(0))
+        lblDiscountTitle.Location = New Point(472, 390)
+        lblDiscountTitle.Name = "lblDiscountTitle"
+        lblDiscountTitle.Size = New Size(71, 21)
+        lblDiscountTitle.TabIndex = 46
+        lblDiscountTitle.Text = "Discount"
+        ' 
+        ' lblDiscountPercent
+        ' 
+        lblDiscountPercent.AutoSize = True
+        lblDiscountPercent.Location = New Point(674, 396)
+        lblDiscountPercent.Name = "lblDiscountPercent"
+        lblDiscountPercent.Size = New Size(0, 15)
+        lblDiscountPercent.TabIndex = 47
+        ' 
+        ' cmbDiscount
+        ' 
+        cmbDiscount.FormattingEnabled = True
+        cmbDiscount.Location = New Point(555, 388)
+        cmbDiscount.Name = "cmbDiscount"
+        cmbDiscount.Size = New Size(96, 23)
+        cmbDiscount.TabIndex = 48
+        ' 
+        ' lblDiscountPercent1
+        ' 
+        lblDiscountPercent1.AutoSize = True
+        lblDiscountPercent1.Location = New Point(693, 397)
+        lblDiscountPercent1.Name = "lblDiscountPercent1"
+        lblDiscountPercent1.Size = New Size(47, 15)
+        lblDiscountPercent1.TabIndex = 49
+        lblDiscountPercent1.Text = "Label19"
+        ' 
         ' Booking
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(852, 845)
+        Controls.Add(lblDiscountPercent1)
+        Controls.Add(cmbDiscount)
+        Controls.Add(lblDiscountPercent)
+        Controls.Add(lblDiscountTitle)
+        Controls.Add(lblTotalPrice)
+        Controls.Add(clbPackages)
         Controls.Add(PictureBox1)
         Controls.Add(Label17)
         Controls.Add(Label18)
@@ -420,8 +467,6 @@ Partial Class Booking
         Controls.Add(btnSave)
         Controls.Add(dtpBookingDate)
         Controls.Add(Label11)
-        Controls.Add(txtPrice)
-        Controls.Add(cmbPackage)
         Controls.Add(cmbTherapist)
         Controls.Add(txtPhone)
         Controls.Add(txtCity)
@@ -461,8 +506,6 @@ Partial Class Booking
     Friend WithEvents txtCity As TextBox
     Friend WithEvents txtPhone As TextBox
     Friend WithEvents cmbTherapist As ComboBox
-    Friend WithEvents cmbPackage As ComboBox
-    Friend WithEvents txtPrice As TextBox
     Friend WithEvents Label11 As System.Windows.Forms.Label
     Friend WithEvents dtpBookingDate As DateTimePicker
     Friend WithEvents btnSave As Button
@@ -483,4 +526,10 @@ Partial Class Booking
     Friend WithEvents Label18 As Label
     Friend WithEvents Label17 As Label
     Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents clbPackages As CheckedListBox
+    Friend WithEvents lblTotalPrice As Label
+    Friend WithEvents lblDiscountTitle As Label
+    Friend WithEvents lblDiscountPercent As Label
+    Friend WithEvents cmbDiscount As ComboBox
+    Friend WithEvents lblDiscountPercent1 As Label
 End Class

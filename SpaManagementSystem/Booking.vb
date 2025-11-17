@@ -2,28 +2,41 @@
 Imports System.Windows.Forms
 
 Public Class Booking
-    Private adminForm As AdminInterface ' specific AdminInterface reference
+
+    Private adminForm As AdminInterface
     Private connectionString As String =
         "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
+
     Private selectedTime As String = ""
-    Private refreshTimer As New System.Windows.Forms.Timer()
+    Private refreshTimer As New Timer()
     Private discountPercent As Decimal = 0D
     Private discountName As String = ""
 
-    ' Accept AdminInterface reference when opening Booking (optional)
+    ' <-- NEW: dictionary that stores all user-selected packages across types
+    Private selectedPackages As New Dictionary(Of Integer, PackageItem)
+
     Public Sub New(Optional admin As AdminInterface = Nothing)
         InitializeComponent()
         Me.adminForm = admin
     End Sub
 
-    '================= FORM LOAD ================='
+    ' ================================
+    ' FORM LOAD
+    ' ================================
     Private Sub Booking_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadGenders()
-        LoadPackages()
         LoadDiscounts()
+        LoadPackageTypes()
+        LoadPackages()
         GenerateTimeSlots()
 
-        ' refresh packages every 30 seconds
+        ' ensure phone textbox max length
+        Try
+            txtPhone.MaxLength = 11
+        Catch
+            ' ignore if txtPhone control doesn't exist or is named differently
+        End Try
+
         refreshTimer.Interval = 30000
         AddHandler refreshTimer.Tick, AddressOf refreshTimer_Tick
         refreshTimer.Start()
@@ -33,7 +46,9 @@ Public Class Booking
         LoadPackages()
     End Sub
 
-    '================= GENDER COMBOBOX ================='
+    ' ================================
+    ' GENDERS
+    ' ================================
     Private Sub LoadGenders()
         cmbGender.Items.Clear()
         cmbGender.Items.AddRange(New String() {"Male", "Female"})
@@ -48,11 +63,17 @@ Public Class Booking
     Private Sub LoadTherapistsByGender(gender As String)
         Using con As New SqlConnection(connectionString)
             con.Open()
-            Dim query = "SELECT TherapistID, Name FROM Therapists WHERE Gender = @Gender AND Status = 'Available'"
+
+            Dim query =
+                "SELECT TherapistID, Name FROM Therapists 
+                 WHERE Gender = @Gender AND Status = 'Available'"
+
             Using cmd As New SqlCommand(query, con)
                 cmd.Parameters.AddWithValue("@Gender", gender)
+
                 Dim dt As New DataTable()
                 dt.Load(cmd.ExecuteReader())
+
                 cmbTherapist.DataSource = dt
                 cmbTherapist.DisplayMember = "Name"
                 cmbTherapist.ValueMember = "TherapistID"
@@ -60,85 +81,138 @@ Public Class Booking
         End Using
     End Sub
 
-    '================= LOAD DISCOUNTS ================='
+    ' ================================
+    ' DISCOUNTS
+    ' ================================
     Private Sub LoadDiscounts()
         Using con As New SqlConnection(connectionString)
             con.Open()
+
+            Dim dt As New DataTable()
             Dim query = "SELECT DiscountID, DiscountName, DiscountPercent FROM Discounts"
+
             Using cmd As New SqlCommand(query, con)
-                Dim dt As New DataTable()
                 dt.Load(cmd.ExecuteReader())
-
-                ' Add "No Discount" option at top
-                Dim newRow As DataRow = dt.NewRow()
-                newRow("DiscountID") = 0
-                newRow("DiscountName") = "No Discount"
-                newRow("DiscountPercent") = 0
-                dt.Rows.InsertAt(newRow, 0)
-
-                cmbDiscount.DataSource = dt
-                cmbDiscount.DisplayMember = "DiscountName"
-                cmbDiscount.ValueMember = "DiscountPercent"
-
-                ' ensure default selection
-                cmbDiscount.SelectedIndex = 0
             End Using
+
+            Dim newRow As DataRow = dt.NewRow()
+            newRow("DiscountID") = 0
+            newRow("DiscountName") = "No Discount"
+            newRow("DiscountPercent") = 0
+            dt.Rows.InsertAt(newRow, 0)
+
+            cmbDiscount.DataSource = dt
+            cmbDiscount.DisplayMember = "DiscountName"
+            cmbDiscount.ValueMember = "DiscountPercent"
+            cmbDiscount.SelectedIndex = 0
         End Using
     End Sub
 
-    '================= DISCOUNT SELECTION ================='
     Private Sub cmbDiscount_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbDiscount.SelectedIndexChanged
-        Try
-            If cmbDiscount.SelectedItem Is Nothing Then
-                discountPercent = 0
-                discountName = ""
-            Else
-                Dim row As DataRowView = TryCast(cmbDiscount.SelectedItem, DataRowView)
-                If row IsNot Nothing Then
-                    discountPercent = Convert.ToDecimal(row("DiscountPercent"))
-                    discountName = row("DiscountName").ToString()
-                ElseIf cmbDiscount.SelectedValue IsNot Nothing Then
-                    discountPercent = Convert.ToDecimal(cmbDiscount.SelectedValue)
-                    discountName = cmbDiscount.Text
-                Else
-                    discountPercent = 0
-                    discountName = ""
-                End If
-            End If
+        Dim row As DataRowView = TryCast(cmbDiscount.SelectedItem, DataRowView)
 
-            lblDiscountPercent1.Text = $"{discountPercent}%"
-            UpdateTotalPrice()
-        Catch ex As Exception
-            MessageBox.Show("Error loading discount: " & ex.Message)
-        End Try
+        If row IsNot Nothing Then
+            discountPercent = CDec(row("DiscountPercent"))
+            discountName = row("DiscountName").ToString()
+        Else
+            discountPercent = 0
+        End If
+
+        lblDiscountPercent1.Text = $"{discountPercent}%"
+        UpdateTotalPrice()
     End Sub
 
-    '================= PACKAGES ================='
-    Private Sub LoadPackages()
-        ' Remember checked package IDs before clearing/reloading
-        Dim checkedPackageIDs As New List(Of Integer)
-        For i As Integer = 0 To clbPackages.Items.Count - 1
-            If clbPackages.GetItemChecked(i) Then
-                checkedPackageIDs.Add(CType(clbPackages.Items(i), PackageItem).PackageID)
-            End If
-        Next
-
+    ' ================================
+    ' PACKAGE TYPE FILTER
+    ' ================================
+    Private Sub LoadPackageTypes()
         Using con As New SqlConnection(connectionString)
             con.Open()
-            Dim query = "SELECT PackageID, PackageName, Price FROM Packages"
+
+            Dim dt As New DataTable()
+            Dim query = "SELECT DISTINCT PackageType FROM Packages ORDER BY PackageType"
+
             Using cmd As New SqlCommand(query, con)
+                dt.Load(cmd.ExecuteReader())
+            End Using
+
+            Dim newRow As DataRow = dt.NewRow()
+            newRow("PackageType") = "All Types"
+            dt.Rows.InsertAt(newRow, 0)
+
+            cmbPackageType.DataSource = dt
+            cmbPackageType.DisplayMember = "PackageType"
+            cmbPackageType.ValueMember = "PackageType"
+        End Using
+    End Sub
+
+    Private Sub cmbPackageType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPackageType.SelectedIndexChanged
+        LoadPackages()
+    End Sub
+
+    ' ==========================================================
+    '  POLYMORPHIC TYPE CREATOR — FACTORY
+    ' ==========================================================
+    Private Function CreateTypeClass(typeName As String) As PackageType
+        If typeName Is Nothing Then
+            Return New PackageType(0, String.Empty, 0)
+        End If
+
+        Select Case typeName.Trim().ToLowerInvariant()
+            Case "whole body", "wholebody", "whole_body" : Return New WholeBodyPackage(0, typeName, 0)
+            Case "head" : Return New HeadPackage(0, typeName, 0)
+            Case "neck" : Return New NeckPackage(0, typeName, 0)
+            Case "back" : Return New BackPackage(0, typeName, 0)
+            Case "arms" : Return New ArmsPackage(0, typeName, 0)
+            Case "legs" : Return New LegsPackage(0, typeName, 0)
+            Case Else
+                Return New PackageType(0, typeName, 0)
+        End Select
+    End Function
+
+    ' ================================
+    ' LOAD PACKAGES (using polymorphism)
+    ' - Shows packages for the selected type (or all)
+    ' - Checks items that exist in selectedPackages dictionary
+    ' ================================
+    Private Sub LoadPackages()
+        Using con As New SqlConnection(connectionString)
+            con.Open()
+
+            Dim query As String
+
+            If cmbPackageType.SelectedValue IsNot Nothing AndAlso cmbPackageType.SelectedValue.ToString() <> "All Types" Then
+                query = "SELECT PackageID, PackageName, Price, PackageType FROM Packages 
+                         WHERE PackageType = @PackageType ORDER BY PackageName"
+            Else
+                query = "SELECT PackageID, PackageName, Price, PackageType FROM Packages ORDER BY PackageName"
+            End If
+
+            Using cmd As New SqlCommand(query, con)
+                If cmbPackageType.SelectedValue IsNot Nothing AndAlso cmbPackageType.SelectedValue.ToString() <> "All Types" Then
+                    cmd.Parameters.AddWithValue("@PackageType", cmbPackageType.SelectedValue.ToString())
+                End If
+
                 Dim dt As New DataTable()
                 dt.Load(cmd.ExecuteReader())
 
                 clbPackages.Items.Clear()
+
                 For Each row As DataRow In dt.Rows
+                    Dim pkgTypeName As String = If(row("PackageType") IsNot DBNull.Value, row("PackageType").ToString(), String.Empty)
+
+                    Dim typeObj As PackageType = CreateTypeClass(pkgTypeName)
+
                     Dim pkg As New PackageItem With {
-                        .PackageID = Convert.ToInt32(row("PackageID")),
+                        .PackageID = CInt(row("PackageID")),
                         .PackageName = row("PackageName").ToString(),
-                        .Price = Convert.ToDecimal(row("Price"))
+                        .Price = CDec(row("Price")),
+                        .TypeClass = typeObj
                     }
-                    Dim wasChecked As Boolean = checkedPackageIDs.Contains(pkg.PackageID)
-                    clbPackages.Items.Add(pkg, wasChecked)
+
+                    ' Check the item if it exists in selectedPackages (user previously checked it)
+                    Dim checkedState As Boolean = selectedPackages.ContainsKey(pkg.PackageID)
+                    clbPackages.Items.Add(pkg, checkedState)
                 Next
             End Using
         End Using
@@ -146,151 +220,207 @@ Public Class Booking
         UpdateTotalPrice()
     End Sub
 
+    ' ================================
+    ' PACKAGE CHECKBOX EVENT
+    ' ================================
     Private Sub clbPackages_ItemCheck(sender As Object, e As ItemCheckEventArgs) Handles clbPackages.ItemCheck
-        ' Defer update until item check state actually changes in UI
-        Me.BeginInvoke(New Action(AddressOf UpdateTotalPrice))
+        ' Use BeginInvoke so the Checked state has been applied before we update dictionary/total
+        Me.BeginInvoke(Sub()
+                           ' Get the PackageItem associated with the row being (un)checked
+                           Dim pkg As PackageItem = CType(clbPackages.Items(e.Index), PackageItem)
+
+                           If e.NewValue = CheckState.Checked Then
+                               ' Add to dictionary if not already present
+                               If Not selectedPackages.ContainsKey(pkg.PackageID) Then
+                                   selectedPackages.Add(pkg.PackageID, pkg)
+                               End If
+                           Else
+                               ' Remove from dictionary when unchecked
+                               If selectedPackages.ContainsKey(pkg.PackageID) Then
+                                   selectedPackages.Remove(pkg.PackageID)
+                               End If
+                           End If
+
+                           UpdateTotalPrice()
+                       End Sub)
     End Sub
 
     Private Sub UpdateTotalPrice()
         Dim total As Decimal = 0D
-        For i As Integer = 0 To clbPackages.Items.Count - 1
-            If clbPackages.GetItemChecked(i) Then
-                total += CType(clbPackages.Items(i), PackageItem).Price
-            End If
+
+        ' Sum prices from the selectedPackages dictionary (this includes packages from other types)
+        For Each kvp In selectedPackages
+            total += kvp.Value.Price
         Next
 
-        Dim discountedTotal As Decimal = total - (total * (discountPercent / 100))
+        Dim discountedTotal = total - (total * (discountPercent / 100D))
         lblTotalPrice.Text = $"₱{discountedTotal:F2}"
     End Sub
 
-    '================= TIME SLOTS ================='
+    ' ================================
+    ' TIME SLOTS
+    ' ================================
     Private Sub GenerateTimeSlots()
         flpTimeSlots.Controls.Clear()
+
         Dim startTime As DateTime = DateTime.Today.AddHours(8)
         Dim endTime As DateTime = DateTime.Today.AddHours(22)
 
         While startTime < endTime
-            Dim rdo As New RadioButton()
-            rdo.Text = $"{startTime:hh:mm tt} - {startTime.AddHours(1):hh:mm tt}"
-            rdo.AutoSize = True
-            AddHandler rdo.CheckedChanged, AddressOf TimeSlot_CheckedChanged
-            flpTimeSlots.Controls.Add(rdo)
+            Dim r As New RadioButton()
+            r.Text = $"{startTime:hh:mm tt} - {startTime.AddHours(1):hh:mm tt}"
+            r.AutoSize = True
+            AddHandler r.CheckedChanged, AddressOf TimeSlot_CheckedChanged
+            flpTimeSlots.Controls.Add(r)
             startTime = startTime.AddHours(1)
         End While
     End Sub
 
     Private Sub TimeSlot_CheckedChanged(sender As Object, e As EventArgs)
-        Dim rdo = CType(sender, RadioButton)
-        If rdo.Checked Then
-            selectedTime = rdo.Text
+        Dim r = CType(sender, RadioButton)
+        If r.Checked Then selectedTime = r.Text
+    End Sub
+
+    ' ================================
+    ' PHONE INPUT HANDLING (digits only, max 11, warn on overflow)
+    ' ================================
+    Private Sub txtPhone_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtPhone.KeyPress
+        ' Allow control keys (backspace), and digits only
+        If Not Char.IsControl(e.KeyChar) AndAlso Not Char.IsDigit(e.KeyChar) Then
+            e.Handled = True
         End If
     End Sub
 
-    '================= SAVE BUTTON ================='
+    Private Sub txtPhone_TextChanged(sender As Object, e As EventArgs) Handles txtPhone.TextChanged
+        ' Remove any non-digit characters (in case of paste)
+        Dim digitsOnly = New String(txtPhone.Text.Where(Function(c) Char.IsDigit(c)).ToArray())
+        If txtPhone.Text <> digitsOnly Then
+            txtPhone.Text = digitsOnly
+            txtPhone.SelectionStart = txtPhone.Text.Length
+        End If
+
+        ' If length exceeds 11, warn and trim
+        If txtPhone.Text.Length > 11 Then
+            MessageBox.Show("Please enter an 11-digit phone number.", "Invalid Phone", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtPhone.Text = txtPhone.Text.Substring(0, 11)
+            txtPhone.SelectionStart = txtPhone.Text.Length
+        End If
+    End Sub
+
+    ' ================================
+    ' SAVE BOOKING
+    ' ================================
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+
         If String.IsNullOrEmpty(selectedTime) Then
-            MessageBox.Show("Please select a booking time.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please select a time slot.")
             Return
         End If
+
         If cmbTherapist.SelectedValue Is Nothing Then
-            MessageBox.Show("Please select a therapist.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Select a therapist.")
             Return
         End If
 
-        Dim selectedPackages As New List(Of PackageItem)
-        For i As Integer = 0 To clbPackages.Items.Count - 1
-            If clbPackages.GetItemChecked(i) Then
-                selectedPackages.Add(CType(clbPackages.Items(i), PackageItem))
-            End If
-        Next
-
-        If selectedPackages.Count = 0 Then
-            MessageBox.Show("Please select at least one package.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        ' Validate phone number length (exactly 11 digits)
+        If String.IsNullOrEmpty(txtPhone.Text) OrElse txtPhone.Text.Length <> 11 Then
+            MessageBox.Show("Phone number must be exactly 11 digits.", "Invalid Phone", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            txtPhone.Focus()
             Return
         End If
 
-        Try
-            Dim bookingID As Integer
+        ' Use selectedPackages dictionary values for saving (includes all types)
+        Dim packagesToSave As New List(Of PackageItem)(selectedPackages.Values)
 
-            Using con As New SqlConnection(connectionString)
-                con.Open()
+        If packagesToSave.Count = 0 Then
+            MessageBox.Show("Please select at least one package.")
+            Return
+        End If
 
-                Dim bookingQuery As String =
-                    "INSERT INTO Bookings
-                     (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
-                      TherapistID, Status, BookingDate, BookingTime, DiscountPercent)
-                     OUTPUT INSERTED.BookingID
-                     VALUES
-                     (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
-                      @TherapistID, 'Pending', @BookingDate, @BookingTime, @DiscountPercent)"
+        ' ============================
+        ' DOUBLE BOOKING CHECK
+        ' ============================
+        Using con As New SqlConnection(connectionString)
+            con.Open()
 
-                Using cmd As New SqlCommand(bookingQuery, con)
-                    cmd.Parameters.AddWithValue("@LastName", txtLastName.Text.Trim())
-                    cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text.Trim())
-                    cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Block", txtBlock.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Street", txtStreet.Text.Trim())
-                    cmd.Parameters.AddWithValue("@City", txtCity.Text.Trim())
-                    cmd.Parameters.AddWithValue("@Phone", txtPhone.Text.Trim())
-                    cmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
-                    cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
-                    cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
-                    cmd.Parameters.AddWithValue("@DiscountPercent", discountPercent)
-                    bookingID = Convert.ToInt32(cmd.ExecuteScalar())
-                End Using
+            Dim query =
+                "SELECT COUNT(*) FROM Bookings
+                 WHERE TherapistID = @TherapistID
+                 AND BookingDate = @BookingDate
+                 AND BookingTime = @BookingTime
+                 AND Status <> 'Cancelled'"
 
-                ' Insert selected packages into BookingPackages
-                For Each pkg As PackageItem In selectedPackages
-                    Dim pkgQuery As String =
-                        "INSERT INTO BookingPackages (BookingID, PackageID, PackagePrice)
-                         VALUES (@BookingID, @PackageID, @PackagePrice)"
-                    Using cmdPkg As New SqlCommand(pkgQuery, con)
-                        cmdPkg.Parameters.AddWithValue("@BookingID", bookingID)
-                        cmdPkg.Parameters.AddWithValue("@PackageID", pkg.PackageID)
-                        cmdPkg.Parameters.AddWithValue("@PackagePrice", pkg.Price)
-                        cmdPkg.ExecuteNonQuery()
-                    End Using
-                Next
+            Using cmd As New SqlCommand(query, con)
+                cmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
+                cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
+                cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
 
-                ' Add points
-                Dim pointsQuery As String =
-                    "INSERT INTO PointsSystem (TherapistID, BookingID, PointsEarned)
-                     VALUES (@TherapistID, @BookingID, 50)"
-                Using cmdPoints As New SqlCommand(pointsQuery, con)
-                    cmdPoints.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
-                    cmdPoints.Parameters.AddWithValue("@BookingID", bookingID)
-                    cmdPoints.ExecuteNonQuery()
-                End Using
+                If CInt(cmd.ExecuteScalar()) > 0 Then
+                    MessageBox.Show("Therapist already booked in this time slot.")
+                    Return
+                End If
+            End Using
+        End Using
+
+        ' ============================
+        ' SAVE BOOKING
+        ' ============================
+        Dim bookingID As Integer
+
+        Using con As New SqlConnection(connectionString)
+            con.Open()
+
+            Dim insert =
+                "INSERT INTO Bookings
+                 (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
+                  TherapistID, Status, BookingDate, BookingTime, DiscountPercent)
+                 OUTPUT INSERTED.BookingID
+                 VALUES
+                 (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
+                  @TherapistID, 'Pending', @BookingDate, @BookingTime, @DiscountPercent)"
+
+            Using cmd As New SqlCommand(insert, con)
+                cmd.Parameters.AddWithValue("@LastName", txtLastName.Text)
+                cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text)
+                cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text)
+                cmd.Parameters.AddWithValue("@Block", txtBlock.Text)
+                cmd.Parameters.AddWithValue("@Street", txtStreet.Text)
+                cmd.Parameters.AddWithValue("@City", txtCity.Text)
+                cmd.Parameters.AddWithValue("@Phone", txtPhone.Text)
+                cmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
+                cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
+                cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
+                cmd.Parameters.AddWithValue("@DiscountPercent", discountPercent)
+
+                bookingID = CInt(cmd.ExecuteScalar())
             End Using
 
-            MessageBox.Show("Booking saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ' SAVE PACKAGES
+            For Each p In packagesToSave
+                Dim pkgInsert =
+                    "INSERT INTO BookingPackages (BookingID, PackageID, PackagePrice)
+                     VALUES (@BOOKINGID, @PACKAGEID, @Price)"
 
-            ' Open Receipt and pass AdminInterface reference (if available)
-            Dim receiptForm As New Receipt(adminForm)
-            receiptForm.BookingID = bookingID
-            receiptForm.StartPosition = FormStartPosition.CenterScreen
-            Me.Hide()
-            receiptForm.Show()
+                Using cmd2 As New SqlCommand(pkgInsert, con)
+                    cmd2.Parameters.AddWithValue("@BOOKINGID", bookingID)
+                    cmd2.Parameters.AddWithValue("@PACKAGEID", p.PackageID)
+                    cmd2.Parameters.AddWithValue("@Price", p.Price)
+                    cmd2.ExecuteNonQuery()
+                End Using
+            Next
+        End Using
 
-        Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
+        MessageBox.Show("Booking saved successfully.")
+
+        Dim receipt As New Receipt(adminForm)
+        receipt.BookingID = bookingID
+        receipt.Show()
+        Me.Hide()
     End Sub
 
-    '================= WHEN CLOSED ================='
     Private Sub Booking_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         refreshTimer.Stop()
         If adminForm IsNot Nothing Then adminForm.Show()
     End Sub
 
-    '================= PACKAGE CLASS ================='
-    Private Class PackageItem
-        Public Property PackageID As Integer
-        Public Property PackageName As String
-        Public Property Price As Decimal
-
-        Public Overrides Function ToString() As String
-            Return $"{PackageName} - ₱{Price:F2}"
-        End Function
-    End Class
 End Class

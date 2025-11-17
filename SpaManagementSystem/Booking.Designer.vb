@@ -65,6 +65,7 @@ Partial Class Booking
         lblDiscountPercent = New Label()
         cmbDiscount = New ComboBox()
         lblDiscountPercent1 = New Label()
+        cmbPackageType = New ComboBox()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -436,11 +437,20 @@ Partial Class Booking
         lblDiscountPercent1.TabIndex = 49
         lblDiscountPercent1.Text = "Label19"
         ' 
+        ' cmbPackageType
+        ' 
+        cmbPackageType.FormattingEnabled = True
+        cmbPackageType.Location = New Point(555, 483)
+        cmbPackageType.Name = "cmbPackageType"
+        cmbPackageType.Size = New Size(121, 23)
+        cmbPackageType.TabIndex = 50
+        ' 
         ' Booking
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(852, 845)
+        Controls.Add(cmbPackageType)
         Controls.Add(lblDiscountPercent1)
         Controls.Add(cmbDiscount)
         Controls.Add(lblDiscountPercent)
@@ -532,4 +542,5 @@ Partial Class Booking
     Friend WithEvents lblDiscountPercent As Label
     Friend WithEvents cmbDiscount As ComboBox
     Friend WithEvents lblDiscountPercent1 As Label
+    Friend WithEvents cmbPackageType As ComboBox
 End Class

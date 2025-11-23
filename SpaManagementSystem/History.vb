@@ -148,6 +148,9 @@ Public Class History
             End Try
         End If
     End Sub
+    Private Sub History_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        AdminInterface.Show()
+    End Sub
 
 End Class
 

@@ -7,20 +7,15 @@ Public Class Therapist
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;TrustServerCertificate=True;"
     Private refreshTimer As Timer
 
-
     Public Sub New(admin As AdminInterface)
         InitializeComponent()
         adminForm = admin
     End Sub
 
     Private Sub Therapist_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
         LoadComboBoxOptions()
-
-
         LoadTherapistNames()
         LoadTherapistGrid()
-
 
         refreshTimer = New Timer()
         refreshTimer.Interval = 5000
@@ -30,10 +25,8 @@ Public Class Therapist
 
     ' -------------------- COMBOBOX OPTIONS --------------------
     Private Sub LoadComboBoxOptions()
-
         cmbGender.Items.Clear()
         cmbGender.Items.AddRange(New String() {"Male", "Female"})
-
 
         cmbStatus.Items.Clear()
         cmbStatus.Items.AddRange(New String() {"Available", "In Session", "Unavailable"})
@@ -46,7 +39,6 @@ Public Class Therapist
         End If
         LoadTherapistGrid(selectedName)
     End Sub
-
 
     Private Sub LoadTherapistNames()
         cmbTherapist.Items.Clear()
@@ -87,7 +79,6 @@ Public Class Therapist
             dgvTherapist.DataSource = dt
         End Using
 
-
         For Each row As DataGridViewRow In dgvTherapist.Rows
             If row.Cells("Status").Value IsNot Nothing Then
                 Dim statusText As String = row.Cells("Status").Value.ToString()
@@ -105,7 +96,6 @@ Public Class Therapist
         Next
     End Sub
 
-
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
         If cmbTherapist.SelectedItem Is Nothing Then
             MessageBox.Show("Please select a therapist to search.", "Search", MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -116,7 +106,7 @@ Public Class Therapist
         LoadTherapistGrid(selectedTherapist)
     End Sub
 
-
+    ' -------------------- ADD THERAPIST & USER --------------------
     Private Sub btnAddTherapist_Click(sender As Object, e As EventArgs) Handles btnAddTherapist.Click
         If String.IsNullOrWhiteSpace(txtTname.Text) OrElse
            String.IsNullOrWhiteSpace(cmbGender.Text) OrElse
@@ -129,19 +119,36 @@ Public Class Therapist
 
         Try
             Using con As New SqlConnection(connectionString)
-                Dim query As String = "INSERT INTO Therapists (Name, Gender, Status) VALUES (@Name, @Gender, @Status)"
-                Using cmd As New SqlCommand(query, con)
-                    cmd.Parameters.AddWithValue("@Name", txtTname.Text)
-                    cmd.Parameters.AddWithValue("@Gender", cmbGender.Text)
-                    cmd.Parameters.AddWithValue("@Status", cmbStatus.Text)
-                    con.Open()
-                    cmd.ExecuteNonQuery()
+                con.Open()
+
+                ' Start transaction to insert into both tables
+                Using transaction = con.BeginTransaction()
+                    ' 1️⃣ Insert into Therapists
+                    Dim therapistQuery As String = "INSERT INTO Therapists (Name, Gender, Status) VALUES (@Name, @Gender, @Status)"
+                    Using therapistCmd As New SqlCommand(therapistQuery, con, transaction)
+                        therapistCmd.Parameters.AddWithValue("@Name", txtTname.Text)
+                        therapistCmd.Parameters.AddWithValue("@Gender", cmbGender.Text)
+                        therapistCmd.Parameters.AddWithValue("@Status", cmbStatus.Text)
+                        therapistCmd.ExecuteNonQuery()
+                    End Using
+
+                    ' 2️⃣ Insert into Users with default password "12345"
+                    Dim userQuery As String = "INSERT INTO Users (Username, Password, Role) VALUES (@Username, @Password, @Role)"
+                    Using userCmd As New SqlCommand(userQuery, con, transaction)
+                        userCmd.Parameters.AddWithValue("@Username", txtTname.Text) ' therapist name as username
+                        userCmd.Parameters.AddWithValue("@Password", "12345")        ' default password
+                        userCmd.Parameters.AddWithValue("@Role", "Therapist")        ' role
+                        userCmd.ExecuteNonQuery()
+                    End Using
+
+                    transaction.Commit()
                 End Using
             End Using
 
-            MessageBox.Show("Therapist added successfully!", "Success",
+            MessageBox.Show("Therapist and user account added successfully!", "Success",
                             MessageBoxButtons.OK, MessageBoxIcon.Information)
 
+            ' Clear input fields
             txtTname.Clear()
             cmbGender.SelectedIndex = -1
             cmbStatus.SelectedIndex = -1
@@ -149,12 +156,12 @@ Public Class Therapist
             LoadTherapistGrid()
 
         Catch ex As Exception
-            MessageBox.Show("Error adding therapist: " & ex.Message, "Database Error",
+            MessageBox.Show("Error adding therapist and user account: " & ex.Message, "Database Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-
+    ' -------------------- DELETE THERAPIST --------------------
     Private Sub btnDeleteTherapist_Click(sender As Object, e As EventArgs) Handles btnDeleteTherapist.Click
         If String.IsNullOrWhiteSpace(cmbSearchTherapist.Text) Then
             MessageBox.Show("Please select a therapist to delete.", "Missing Selection",
@@ -203,7 +210,7 @@ Public Class Therapist
         End Try
     End Sub
 
-
+    ' -------------------- FORM EVENTS --------------------
     Private Sub Therapist_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If refreshTimer IsNot Nothing Then
             refreshTimer.Stop()

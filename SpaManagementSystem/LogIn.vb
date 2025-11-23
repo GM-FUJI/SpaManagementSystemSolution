@@ -11,6 +11,7 @@ Public Class LogIn
         txtPassword.ForeColor = Color.DarkGray
     End Sub
 
+    ' --------------------- TEXTBOX PLACEHOLDER ---------------------
     Private Sub txtUsername_GotFocus(sender As Object, e As EventArgs) Handles txtUsername.GotFocus
         If txtUsername.Text = "Username" Then
             txtUsername.Text = ""
@@ -41,6 +42,7 @@ Public Class LogIn
         End If
     End Sub
 
+    ' --------------------- LOGIN BUTTON ---------------------
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
         If txtUsername.Text = "" Or txtUsername.Text = "Username" Then
             MsgBox("Enter the username")
@@ -58,38 +60,31 @@ Public Class LogIn
             Using con As New SqlConnection(connectionString)
                 con.Open()
 
-
-                Dim sql As String = "SELECT Password, Role, TherapistID FROM Users WHERE Username = @user"
+                Dim sql As String = "SELECT Password, Role FROM Users WHERE Username = @user"
                 Using cmd As New SqlCommand(sql, con)
                     cmd.Parameters.AddWithValue("@user", txtUsername.Text.Trim())
 
                     Using reader = cmd.ExecuteReader()
                         If reader.Read() Then
                             Dim dbPass As String = reader("Password").ToString()
-                            Dim role As String = reader("Role").ToString()
+                            Dim role As String = reader("Role").ToString().ToLower()
 
                             If txtPassword.Text = dbPass Then
-                                If role.ToLower() = "admin" Then
-                                    Dim adminForm As New AdminInterface()
-                                    adminForm.Show()
-                                    Me.Hide()
+                                Select Case role
+                                    Case "admin"
+                                        Dim adminForm As New AdminInterface()
+                                        adminForm.Show()
+                                        Me.Hide()
 
-                                ElseIf role.ToLower() = "therapist" Then
-                                    Dim therapistForm As New TherapistInterface()
-                                    therapistForm.LoggedInUser = txtUsername.Text.Trim()
+                                    Case "therapist"
+                                        Dim therapistForm As New TherapistInterface()
+                                        therapistForm.LoggedInUser = txtUsername.Text.Trim()
+                                        therapistForm.Show()
+                                        Me.Hide()
 
-
-                                    If Not IsDBNull(reader("TherapistID")) Then
-                                        therapistForm.LoggedInTherapistID = CInt(reader("TherapistID"))
-                                    Else
-                                        therapistForm.LoggedInTherapistID = 0
-                                    End If
-
-                                    therapistForm.Show()
-                                    Me.Hide()
-                                Else
-                                    MsgBox("Unknown role.")
-                                End If
+                                    Case Else
+                                        MsgBox("Unknown role.")
+                                End Select
                             Else
                                 MsgBox("Invalid username or password", MsgBoxStyle.Critical)
                             End If
@@ -99,9 +94,9 @@ Public Class LogIn
                     End Using
                 End Using
             End Using
-
         Catch ex As Exception
             MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
         End Try
     End Sub
+
 End Class

@@ -1,5 +1,6 @@
 ﻿Imports Microsoft.Data.SqlClient
 Imports System.Windows.Forms
+Imports System.Data
 
 Public Class Booking
 
@@ -59,7 +60,7 @@ Public Class Booking
         Using con As New SqlConnection(connectionString)
             con.Open()
 
-            Dim query =
+            Dim query As String =
                 "SELECT TherapistID, Name FROM Therapists 
                  WHERE Gender = @Gender AND Status = 'Available'"
 
@@ -131,7 +132,7 @@ Public Class Booking
                 dt.Load(cmd.ExecuteReader())
             End Using
 
-            Dim newRow As DataRow = dt.NewRow()
+            Dim newRow = dt.NewRow()
             newRow("PackageType") = "All Types"
             dt.Rows.InsertAt(newRow, 0)
 
@@ -146,12 +147,10 @@ Public Class Booking
     End Sub
 
     ' ==========================================================
-    '  POLYMORPHIC TYPE CREATOR — FACTORY
+    ' POLYMORPHIC TYPE CREATOR — FACTORY
     ' ==========================================================
     Private Function CreateTypeClass(typeName As String) As PackageType
-        If typeName Is Nothing Then
-            Return New PackageType(0, String.Empty, 0)
-        End If
+        If typeName Is Nothing Then Return New PackageType(0, "", 0)
 
         Select Case typeName.Trim().ToLowerInvariant()
             Case "whole body" : Return New WholeBodyPackage(0, typeName, 0)
@@ -195,9 +194,7 @@ Public Class Booking
                 clbPackages.Items.Clear()
 
                 For Each row As DataRow In dt.Rows
-                    Dim typeName As String =
-                        If(row("PackageType") IsNot DBNull.Value, row("PackageType").ToString(), "")
-
+                    Dim typeName As String = If(row("PackageType") IsNot DBNull.Value, row("PackageType").ToString(), "")
                     Dim typeObj As PackageType = CreateTypeClass(typeName)
 
                     Dim pkg As New PackageItem With {
@@ -216,9 +213,6 @@ Public Class Booking
         UpdateTotalPrice()
     End Sub
 
-    ' ================================
-    ' PACKAGE CHECKBOX EVENT
-    ' ================================
     Private Sub clbPackages_ItemCheck(sender As Object, e As ItemCheckEventArgs) Handles clbPackages.ItemCheck
         Me.BeginInvoke(Sub()
                            Dim pkg As PackageItem = CType(clbPackages.Items(e.Index), PackageItem)
@@ -238,11 +232,7 @@ Public Class Booking
     End Sub
 
     Private Sub UpdateTotalPrice()
-        Dim total As Decimal = 0D
-        For Each kv In selectedPackages
-            total += kv.Value.Price
-        Next
-
+        Dim total As Decimal = selectedPackages.Values.Sum(Function(p) p.Price)
         Dim discounted = total - (total * (discountPercent / 100D))
         lblTotalPrice.Text = $"₱{discounted:F2}"
     End Sub
@@ -320,40 +310,32 @@ Public Class Booking
             Return
         End If
 
-        ' ============================
-        ' DOUBLE BOOKING CHECK
-        ' ============================
+        Dim bookingID As Integer
+
         Using con As New SqlConnection(connectionString)
             con.Open()
 
-            Dim query =
+            ' Check for double booking
+            Dim checkSql =
                 "SELECT COUNT(*) FROM Bookings
                  WHERE TherapistID = @TherapistID
                  AND BookingDate = @BookingDate
                  AND BookingTime = @BookingTime
                  AND Status <> 'Cancelled'"
 
-            Using cmd As New SqlCommand(query, con)
-                cmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
-                cmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
-                cmd.Parameters.AddWithValue("@BookingTime", selectedTime)
+            Using checkCmd As New SqlCommand(checkSql, con)
+                checkCmd.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
+                checkCmd.Parameters.AddWithValue("@BookingDate", dtpBookingDate.Value.Date)
+                checkCmd.Parameters.AddWithValue("@BookingTime", selectedTime)
 
-                If CInt(cmd.ExecuteScalar()) > 0 Then
+                If CInt(checkCmd.ExecuteScalar()) > 0 Then
                     MessageBox.Show("Therapist already booked in this time slot.")
                     Return
                 End If
             End Using
-        End Using
 
-        ' ============================
-        ' SAVE BOOKING
-        ' ============================
-        Dim bookingID As Integer
-
-        Using con As New SqlConnection(connectionString)
-            con.Open()
-
-            Dim sql =
+            ' Save booking
+            Dim insertSql =
                 "INSERT INTO Bookings
                  (LastName, FirstName, MiddleInitial, Block, Street, City, Phone,
                   TherapistID, Status, BookingDate, BookingTime, DiscountPercent)
@@ -362,7 +344,7 @@ Public Class Booking
                  (@LastName, @FirstName, @MiddleInitial, @Block, @Street, @City, @Phone,
                   @TherapistID, 'Pending', @BookingDate, @BookingTime, @DiscountPercent)"
 
-            Using cmd As New SqlCommand(sql, con)
+            Using cmd As New SqlCommand(insertSql, con)
                 cmd.Parameters.AddWithValue("@LastName", txtLastName.Text)
                 cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text)
                 cmd.Parameters.AddWithValue("@MiddleInitial", txtMiddleInitial.Text)
@@ -378,9 +360,7 @@ Public Class Booking
                 bookingID = CInt(cmd.ExecuteScalar())
             End Using
 
-            ' ============================
-            ' SAVE PACKAGES
-            ' ============================
+            ' Save selected packages
             For Each p In selectedPackages.Values
                 Dim pkgInsert =
                     "INSERT INTO BookingPackages (BookingID, PackageID, PackagePrice)
@@ -394,27 +374,15 @@ Public Class Booking
                 End Using
             Next
 
-            ' ============================
-            ' GIVE THERAPIST 50 POINTS
-            ' ============================
-            Dim pointsInsert As String =
-                "INSERT INTO PointsSystem (TherapistID, BookingID, PointsEarned, DateEarned)
-                 VALUES (@TherapistID, @BookingID, 50, GETDATE())"
-
-            Using cmd3 As New SqlCommand(pointsInsert, con)
-                cmd3.Parameters.AddWithValue("@TherapistID", CInt(cmbTherapist.SelectedValue))
-                cmd3.Parameters.AddWithValue("@BookingID", bookingID)
-                cmd3.ExecuteNonQuery()
-            End Using
-
         End Using
 
         MessageBox.Show("Booking saved successfully.")
 
-        Dim receipt As New ReceiptForm()
+        Dim receipt As New Receipt(Me)
         receipt.BookingID = bookingID
         receipt.Show()
         Me.Hide()
+
     End Sub
 
     Private Sub Booking_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed

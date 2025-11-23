@@ -2,14 +2,18 @@
 Imports System.Windows.Forms
 
 Public Class Receipt
+
     Private connectionString As String = "Server=DESKTOP-UKNIJ8J\SQLEXPRESS;Database=SpaManagementSystem;Trusted_Connection=True;Encrypt=False;TrustServerCertificate=True;"
-    Private adminForm As AdminInterface
+
+    ' Store reference to Booking form
+    Private bookingForm As Booking
+
     Public Property BookingID As Integer
 
-    ' Constructor (optional AdminInterface reference)
-    Public Sub New(Optional admin As AdminInterface = Nothing)
+    ' ===================== CONSTRUCTOR ===================== '
+    Public Sub New(Optional booking As Booking = Nothing)
         InitializeComponent()
-        adminForm = admin
+        bookingForm = booking
     End Sub
 
     ' ===================== FORM LOAD ===================== '
@@ -85,11 +89,11 @@ Public Class Receipt
                     lblTax.Text = "₱" & taxAmount.ToString("N2")
                     lblTotal.Text = "₱" & total.ToString("N2")
 
-                    ' Display package list
                     dgvPackages.DataSource = table
                     dgvPackages.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
                     dgvPackages.ReadOnly = True
                     dgvPackages.RowHeadersVisible = False
+
                 End Using
             End Using
 
@@ -98,7 +102,7 @@ Public Class Receipt
         End Try
     End Sub
 
-    ' ===================== SAFE HELPERS ===================== '
+    ' ===================== SAFE HELPER ===================== '
     Private Function SafeGet(reader As SqlDataReader, columnName As String) As String
         If reader.IsDBNull(reader.GetOrdinal(columnName)) Then Return ""
         Return reader(columnName).ToString()
@@ -106,9 +110,10 @@ Public Class Receipt
 
     ' ===================== FORM CLOSING ===================== '
     Private Sub Receipt_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If adminForm IsNot Nothing Then
-            adminForm.StartPosition = FormStartPosition.CenterScreen
-            adminForm.Show()
+        If bookingForm IsNot Nothing Then
+            bookingForm.StartPosition = FormStartPosition.CenterScreen
+            bookingForm.Show()
         End If
     End Sub
+
 End Class
